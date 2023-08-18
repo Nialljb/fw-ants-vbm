@@ -1,0 +1,72 @@
+{
+    "author": "Niall Bourke",
+    "cite": "Sean C.L. Deoni, Muriel M.K. Bruchhage, Jennifer Beauchemin, Alexandra Volpe, Viren D'Sa, Matthew Huentelman, Steven C.R. Williams,Accessible pediatric neuroimaging using a low field strength MRI scanner, NeuroImage, Volume 238, 2021, 118273, ISSN 1053-8119, https://doi.org/10.1016/j.neuroimage.2021.118273. (https://www.sciencedirect.com/science/article/pii/S1053811921005498)",
+    "command": "python3 /flywheel/v0/run.py",
+    "config": {},
+    "custom": {
+        "analysis-level": "participant",
+        "flywheel": {
+            "classification": {
+                "components": [
+                    "hyperfine-vbm"
+                ],
+                "keywords": [
+                    "segmentation",
+                    "volume",
+                    "vbm",
+                    "template"
+                ],
+                "modality": [
+                    "MR"
+                ],
+                "type": [
+                    "nifti"
+                ]
+            },
+            "suite": "UNITY Apps"
+        },
+        "gear-builder": {
+            "category": "analysis",
+            "image": "flywheel/hyperfine-vbm:0.0.1"
+        },
+        "kcl-app-binary": "app/main.sh",
+        "kcl-app-modalities": [
+            "anat"
+        ]
+    },
+    "description": "(UNDER DEVELOPMENT - DO NOT RUN!): This gear takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants.",
+    "environment": {
+        "CONDA_DIR": "/opt/conda",
+        "FLYWHEEL": "/flywheel/v0",
+        "GPG_KEY": "E3FF2839C048B25C084DEBE9B26995E310250568",
+        "LANG": "C.UTF-8",
+        "PATH": "/opt/conda/bin:/opt/ants/bin/:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "PYTHON_GET_PIP_SHA256": "fa6f3fb93cce234cd4e8dd2beb54a51ab9c247653b52855a48dd44e6b21ff28b",
+        "PYTHON_GET_PIP_URL": "https://github.com/pypa/get-pip/raw/c20b0cfd643cd4a19246ccf204e2997af70f6b21/public/get-pip.py",
+        "PYTHON_PIP_VERSION": "21.2.3",
+        "PYTHON_VERSION": "3.8.11",
+        "container": "oci",
+        "FSLDIR": "/opt/conda",
+        "FSL_CONDA_CHANNEL": "https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/public",
+        "ANTSPATH": "/opt/ants/bin/"
+    },
+    "inputs": {
+        "api-key": {
+            "base": "api-key",
+            "read-only": true
+        },
+
+        "input": {
+            "base": "file",
+            "description": "input file (usually bias corrected isotropic reconstruction)",
+            "optional": false
+        }
+    },
+    "label": "Hyperfine-VBM",
+    "license": "MIT",
+    "maintainer": "Niall Bourke <niall.bourke@kcl.ac.uk>",
+    "name": "hyperfine-vbm",
+    "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
+    "url": "",
+    "version": "0.0.1"
+}
