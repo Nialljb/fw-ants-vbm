@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y software-proper
     pip3 install flywheel-gear-toolkit && \
     pip3 install flywheel-sdk && \
     pip3 install importlib_metadata && \
+    pip3 install pandas && \
     apt-get update && apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

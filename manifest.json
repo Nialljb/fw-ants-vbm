@@ -55,14 +55,13 @@
             "base": "api-key",
             "read-only": true
         },
-
         "input": {
             "base": "file",
             "description": "input file (usually bias corrected isotropic reconstruction)",
             "optional": false
         }
     },
-    "label": "Hyperfine-VBM",
+    "label": "Hyperfine: ANTS VBM",
     "license": "MIT",
     "maintainer": "Niall Bourke <niall.bourke@kcl.ac.uk>",
     "name": "hyperfine-vbm",
