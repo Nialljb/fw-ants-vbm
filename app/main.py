@@ -97,9 +97,9 @@ def run_main(subject, session):
     maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
     maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
 
-    os.system("fslmaths" + individualWhiteSegmentation + " -mas " + studyBrainMask + maskedWMSegmentation)
-    os.system("fslmaths" + individualGraySegmentation + " -mas " + studyBrainMask + maskedGMSegmentation)
-    os.system("fslmaths" + individualCSFSegmentation + " -mas " + studyBrainMask + maskedCSFSegmentation)
+    os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + maskedWMSegmentation)
+    os.system("fslmaths " + individualGraySegmentation + " -mas " + studyBrainMask + maskedGMSegmentation)
+    os.system("fslmaths " + individualCSFSegmentation + " -mas " + studyBrainMask + maskedCSFSegmentation)
 
     # 6: from the warp field, calculate the various jacobian matrices
     print("Calculating jacobian matrices...")

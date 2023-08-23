@@ -18,11 +18,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y software-proper
     apt-get update && apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Installing main dependencies
-RUN git clone https://github.com/MIC-DKFZ/HD-BET && \
-    cd HD-BET && \
-    pip3 install -e .  
-    
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
     bash -c 'chmod +rx $FLYWHEEL/app/'
