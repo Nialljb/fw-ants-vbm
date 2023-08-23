@@ -24,5 +24,7 @@ RUN git clone https://github.com/MIC-DKFZ/HD-BET && \
     pip3 install -e .  
     
 # Configure entrypoint
+RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
+    bash -c 'chmod +rx $FLYWHEEL/app/'
 ENTRYPOINT ["python3","/flywheel/v0/run.py"] 
 # Flywheel reads the config command over this entrypoint

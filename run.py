@@ -5,9 +5,9 @@ import os
 
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
-# from app.parser import parse_config
 from app.command_line import exec_command
 from app.metadata import get_metadata
+from app.main import run_main
 
 # The gear is split up into 2 main components. The run.py file which is executed
 # when the container runs. The run.py file then imports the rest of the gear as a
@@ -17,18 +17,23 @@ log = logging.getLogger(__name__)
 
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""
-    get_metadata()
-    
-    command = "/flywheel/v0/app/main.py"
-    # os.system(command)
+    print("pulling metadata...")
+    subject_label, session_label = get_metadata()
 
-    #This is what it is all about
-    exec_command(
-    command,
-    #dry_run=gear_options["dry-run"],
-    shell=True,
-    cont_output=True,
-        )
+
+    print("running main...")
+    run_main(subject_label, session_label)
+    
+    # command = "/flywheel/v0/app/main.py"
+    # # os.system(command)
+
+    # #This is what it is all about
+    # exec_command(
+    # command,
+    # #dry_run=gear_options["dry-run"],
+    # shell=True,
+    # cont_output=True,
+    #     )
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover

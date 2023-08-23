@@ -30,6 +30,8 @@ def get_metadata():
     session = session_container.reload()
     print("subject label: ", session.subject.label)
     print("session label: ", session.label)
+    session_label = session.label
+    subject_label = session.subject.label
 
     #  -----------------  Get the hd-bet output  -----------------  #
 
@@ -45,7 +47,7 @@ def get_metadata():
     else:
 
         matches = [asys for asys in analyses if asys.gear_info.get('name') == gear]
-        print(matches)
+        # print(matches)
         # If there are no matches, the gear didn't run
         if len(matches) == 0:
             run = 'False'
@@ -54,7 +56,7 @@ def get_metadata():
         elif len(matches) == 1:
             run = 'True'
             status = matches[0].job.get('state')
-            print(status)
+            # print(status)
             
             for file in matches[0].files:
                 # print(file)
@@ -65,13 +67,13 @@ def get_metadata():
                 
                 if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
                     brain_mask = file
-                    print(file.name)
+                    print("Found ", file.name)
 
                     download_dir = ('/flywheel/v0/work/')
                     if not os.path.exists(download_dir):
                         os.mkdir(download_dir)
                     download_path = download_dir + '/' + file.name
-                    file.name.download(download_path)
+                    file.download(download_path)
 
         # If there are more than one matches (due to reruns), take the most recent run.
         # This behavior may be modified to whatever suits your needs
@@ -94,13 +96,13 @@ def get_metadata():
                 
                 if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
                     brain_mask = file
-                    print(file.name)
+                    print("Found ", file.name)
 
                     download_dir = ('/flywheel/v0/work/')
                     if not os.path.exists(download_dir):
                         os.mkdir(download_dir)
                     download_path = download_dir + '/' + file.name
-                    file.name.download(download_path)
+                    file.download(download_path)
 
     # -------------------  Get the subject age & matching template  -------------------  #
 
@@ -112,7 +114,7 @@ def get_metadata():
     for acq in session_container.acquisitions.iter():
         # print(acq.label)
         acq = acq.reload()
-        if 'T2' in acq.label and 'AXI' in acq.label: # restrict to T2 acquisitions
+        if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label and 'NOT FOR DIAGNOSTIC USE' not in acq.label: # restrict to T2 acquisitions
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
@@ -160,7 +162,8 @@ def get_metadata():
                     
                     print("target_template: ", target_template)
 
-                    Template = '/flywheel/v0/app/templates/'+target_template
+                    Template = '/flywheel/v0/app/templates/'+ target_template
                     print(Template)
-                    os.system('cp -r '+Template+' /flywheel/v0/work/target')
+                    os.system('cp -r '+Template+' /flywheel/v0/work/')
 
+    return subject_label, session_label
