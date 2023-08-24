@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 """The run script."""
 import logging
-import os
+# import os
 
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
+from app.test.test_fsl import test_fsl
 from app.command_line import exec_command
 from app.metadata import get_metadata
-from app.main import run_main
+from app.ants_vbm import vbm
 
 # The gear is split up into 2 main components. The run.py file which is executed
 # when the container runs. The run.py file then imports the rest of the gear as a
@@ -15,25 +16,27 @@ from app.main import run_main
 
 log = logging.getLogger(__name__)
 
+# Check if FSL output type is set to NIFTI_GZ
+test_fsl()
+
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""
     print("pulling metadata...")
     subject_label, session_label = get_metadata()
 
-
-    print("running main...")
-    run_main(subject_label, session_label)
+    print("running ants vbm script...")
+    # vbm(subject_label, session_label)
     
-    # command = "/flywheel/v0/app/main.py"
+    command = vbm(subject_label, session_label) #"/flywheel/v0/app/main.py"
     # # os.system(command)
 
-    # #This is what it is all about
-    # exec_command(
-    # command,
-    # #dry_run=gear_options["dry-run"],
-    # shell=True,
-    # cont_output=True,
-    #     )
+    #This is what it is all about
+    exec_command(
+    command,
+    #dry_run=gear_options["dry-run"],
+    shell=False,
+    cont_output=True,
+        )
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover
