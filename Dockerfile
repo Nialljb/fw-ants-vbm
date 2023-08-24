@@ -19,10 +19,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y software-proper
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set up FSL
-RUN $FSLDIR/etc/fslconf/fsl.sh
 
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
-    bash -c 'chmod +rx $FLYWHEEL/app/'
+    bash -c 'chmod +rx $FLYWHEEL/app/' && \
+    bash -c 'chmod +rx $FSLDIR/etc/fslconf/fsl.sh' &&\
+    bash -c 'source $FSLDIR/etc/fslconf/fsl.sh'
+    
 ENTRYPOINT ["python3","/flywheel/v0/run.py"] 
 # Flywheel reads the config command over this entrypoint
