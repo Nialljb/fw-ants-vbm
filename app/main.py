@@ -1,4 +1,4 @@
-import os 
+import os, sys
 from pathlib import Path
 
 # Pre-run gears:
@@ -97,9 +97,9 @@ def run_main(subject, session):
     maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
     maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
 
-    os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + maskedWMSegmentation)
-    os.system("fslmaths " + individualGraySegmentation + " -mas " + studyBrainMask + maskedGMSegmentation)
-    os.system("fslmaths " + individualCSFSegmentation + " -mas " + studyBrainMask + maskedCSFSegmentation)
+    os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + " " + maskedWMSegmentation)
+    os.system("fslmaths " + individualGraySegmentation + " -mas " + studyBrainMask + " " + maskedGMSegmentation)
+    os.system("fslmaths " + individualCSFSegmentation + " -mas " + studyBrainMask + " " + maskedCSFSegmentation)
 
     # 6: from the warp field, calculate the various jacobian matrices
     print("Calculating jacobian matrices...")
@@ -107,8 +107,8 @@ def run_main(subject, session):
     gJacobian = (WORK + " /gJacobian.nii.gz")
 
     antsJacobian = (softwareHome + "CreateJacobianDeterminantImage 3 ")
-    os.system(antsJacobian + brainWarpField + " " + logJacobian + " 1 0")
-    os.system(antsJacobian + brainWarpField + " " + gJacobian + " 0 1")
+    os.system(antsJacobian + " " + brainWarpField + " " + logJacobian + " 1 0")
+    os.system(antsJacobian + " " + brainWarpField + " " + gJacobian + " 0 1")
 
     # 7: multiply the aligned images by the jacobian matrix to correct for the effect of the warp
     print("Multiplying aligned images by jacobian matrix...")
@@ -117,24 +117,28 @@ def run_main(subject, session):
     logCorrectedCSFSegmentation = (WORK + "/studyCSF_corr.nii")
 
 
-    os.system(antsMath + logCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
-    os.system(antsMath + logCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
-    os.system(antsMath + logCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
+    os.system(antsMath + " " + logCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
+    os.system(antsMath + " " + logCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
+    os.system(antsMath + " " + logCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
 
     gCorrectedWMSegmentation = (WORK + "/studyWM_gcorr.nii")
     gCorrectedGMSegmentation = (WORK + "/studyGM_gcorr.nii")
     gCorrectedCSFSegmentation = (WORK + "/studyCSF_gcorr.nii")
 
-    os.system(antsMath + gCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
-    os.system(antsMath + gCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
-    os.system(antsMath + gCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
+    try:
+        os.system(antsMath + " " + gCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
+        os.system(antsMath + " " + gCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
+        os.system(antsMath + " " + gCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
+    except:
+        print("Error in calculating gJacobian")
+        sys.exit(1)
 
     # 8: Calculate the volumes of the tissue segmentations
     print("Calculating tissue volumes...")
     # Setup in a seperate module
 
     os.system("echo subject, session > " + WORK + "/demo.txt; echo " + subject + ", " + session + " >> " + WORK + "/demo.txt")  
-    os.system("echo WM > " + WORK + "/WMvol.txt; fslstats" + gCorrectedWMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/WMvol.txt")  
-    os.system("echo GM > " + WORK + "/GMvol.txt; fslstats" + gCorrectedGMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/GMvol.txt")
-    os.system("echo CSV > " + WORK + "/CSVvol.txt; fslstats" + gCorrectedCSFSegmentation + " -V | awk '{print $1}' >> " + WORK + "/CSFvol.txt")
+    os.system("echo WM > " + WORK + "/WMvol.txt; fslstats " + gCorrectedWMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/WMvol.txt")  
+    os.system("echo GM > " + WORK + "/GMvol.txt; fslstats " + gCorrectedGMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/GMvol.txt")
+    os.system("echo CSV > " + WORK + "/CSVvol.txt; fslstats " + gCorrectedCSFSegmentation + " -V | awk '{print $1}' >> " + WORK + "/CSFvol.txt")
     os.system('paste -d "," '  + WORK + '/demo.txt ' + WORK + '/WMvol.txt ' + WORK + '/GMvol.txt ' + WORK + '/CSFvol.txt > ' + OUTPUT_DIR + '/volumes.csv')
