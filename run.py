@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """The run script."""
-import logging
+import logging, subprocess
 # import os
 
 # import flywheel functions
@@ -18,6 +18,10 @@ log = logging.getLogger(__name__)
 
 # Check if FSL output type is set to NIFTI_GZ
 # test_fsl()
+
+subprocess.run(["echo $FSLOUTPUTTYPE"],
+                            shell=True,
+                            check=True)
 
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""
