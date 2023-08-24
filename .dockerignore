@@ -8,6 +8,7 @@
 !manifest.json
 !app
 !utils
+!start.sh
 !.pre-commit-config.yaml
 !.env
 !.git

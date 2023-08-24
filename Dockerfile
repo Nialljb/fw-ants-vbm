@@ -1,4 +1,4 @@
-FROM nialljb/njb-ants-fsl-base:0.0.1 as base
+FROM nialljb/fw-ants-vbm:latest as base
 
 ENV HOME=/root/
 ENV FLYWHEEL="/flywheel/v0"
@@ -11,11 +11,11 @@ COPY ./ $FLYWHEEL/
 # Dev dpendencies
 RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common=0.96.20.2-2 && \
     apt-get clean && \
-    pip3 install flywheel-gear-toolkit && \
-    pip3 install flywheel-sdk && \
-    pip3 install importlib_metadata && \
-    pip3 install pandas && \
-    apt-get update && apt-get install jq -y && \
+    # pip3 install flywheel-gear-toolkit && \
+    # pip3 install flywheel-sdk && \
+    # pip3 install importlib_metadata && \
+    # pip3 install pandas && \
+    # apt-get update && apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set up FSL
@@ -27,5 +27,5 @@ RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
     bash -c 'chmod +rx $FSLDIR/etc/fslconf/fsl.sh' &&\
     bash -c 'source $FSLDIR/etc/fslconf/fsl.sh'
     
-ENTRYPOINT ["python3","/flywheel/v0/start.sh"] 
+ENTRYPOINT ["bash","/flywheel/v0/start.sh"] 
 # Flywheel reads the config command over this entrypoint
