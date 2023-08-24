@@ -9,3 +9,9 @@ Initial build
 To do:
 - include template segmentations
 - pull HD-BET mask
+
+24/08/2023
+"version": "0.0.6"
+- pulls HD-BET mask
+- matches to BCP template
+- draft of main.py to test

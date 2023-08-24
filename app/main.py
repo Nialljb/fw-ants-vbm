@@ -46,16 +46,16 @@ def run_main(subject, session):
     print("ref is: ", studyBrainReference)
 
     individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
-    studyBrainMask = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet_mask.nii.gz")
+    studyBrainMask = (WORK + "/isotropicReconstruction_corrected_hdbet_mask.nii.gz")
      
     print("input brain is: ", individualMaskedBrain)
 
 
     #  Set up the software
     softwareHome = "/opt/ants/bin/"
-    antsN4 = softwareHome + "N4BiasFieldCorrection -d 3 -t -v -i "
+    # antsN4 = softwareHome + "N4BiasFieldCorrection -d 3 -t -v -i "
     antsWarp = softwareHome + "ANTS 3 -G -m CC["
-    antsMIWarp = softwareHome + "ANTS 3 -G -m MI["
+    # antsMIWarp = softwareHome + "ANTS 3 -G -m MI["
     antsImageAlign = softwareHome + "WarpImageMultiTransform 3 "
     antsMath = softwareHome + "ImageMath 3 "
 
