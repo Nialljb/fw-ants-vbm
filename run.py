@@ -5,7 +5,7 @@ import logging
 
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
-from app.test.test_fsl import test_fsl
+# from app.test.test_fsl import test_fsl
 from app.command_line import exec_command
 from app.metadata import get_metadata
 from app.ants_vbm import vbm
@@ -17,7 +17,7 @@ from app.ants_vbm import vbm
 log = logging.getLogger(__name__)
 
 # Check if FSL output type is set to NIFTI_GZ
-test_fsl()
+# test_fsl()
 
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""

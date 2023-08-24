@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y software-proper
     apt-get update && apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Set up FSL
+RUN $FSLDIR/etc/fslconf/fsl.sh
+
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
     bash -c 'chmod +rx $FLYWHEEL/app/'
