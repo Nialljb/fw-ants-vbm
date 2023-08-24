@@ -18,3 +18,6 @@ To do:
 
 "version": "0.0.7"
 - added test_fsl as output not configured correctly 
+
+"version": "0.1.0"
+- changed entrypoint to config fsl before running

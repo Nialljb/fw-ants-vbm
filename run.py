@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """The run script."""
 import logging, subprocess
-# import os
 
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
@@ -18,7 +17,6 @@ log = logging.getLogger(__name__)
 
 # Check if FSL output type is set to NIFTI_GZ
 # test_fsl()
-
 subprocess.run(["echo $FSLOUTPUTTYPE"],
                             shell=True,
                             check=True)

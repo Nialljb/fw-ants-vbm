@@ -1,7 +1,7 @@
 {
     "author": "Niall Bourke",
     "cite": "Sean C.L. Deoni, Muriel M.K. Bruchhage, Jennifer Beauchemin, Alexandra Volpe, Viren D'Sa, Matthew Huentelman, Steven C.R. Williams,Accessible pediatric neuroimaging using a low field strength MRI scanner, NeuroImage, Volume 238, 2021, 118273, ISSN 1053-8119, https://doi.org/10.1016/j.neuroimage.2021.118273. (https://www.sciencedirect.com/science/article/pii/S1053811921005498)",
-    "command": "python3 /flywheel/v0/run.py",
+    "command": "python3 /flywheel/v0/start.sh",
     "config": {},
     "custom": {
         "analysis-level": "participant",
@@ -27,7 +27,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/hyperfine-vbm:0.0.9"
+            "image": "flywheel/hyperfine-vbm:0.1.0"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
@@ -67,5 +67,5 @@
     "name": "hyperfine-vbm",
     "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
     "url": "",
-    "version": "0.0.9"
+    "version": "0.1.0"
 }

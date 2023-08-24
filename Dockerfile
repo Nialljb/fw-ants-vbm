@@ -22,9 +22,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y software-proper
 
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
+    bash -c 'chmod +rx $FLYWHEEL/start.sh' && \
     bash -c 'chmod +rx $FLYWHEEL/app/' && \
     bash -c 'chmod +rx $FSLDIR/etc/fslconf/fsl.sh' &&\
     bash -c 'source $FSLDIR/etc/fslconf/fsl.sh'
     
-ENTRYPOINT ["python3","/flywheel/v0/run.py"] 
+ENTRYPOINT ["python3","/flywheel/v0/start.sh"] 
 # Flywheel reads the config command over this entrypoint
