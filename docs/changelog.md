@@ -15,3 +15,6 @@ To do:
 - pulls HD-BET mask
 - matches to BCP template
 - draft of main.py to test
+
+"version": "0.0.7"
+- added test_fsl as output not configured correctly 

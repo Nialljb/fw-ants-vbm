@@ -27,7 +27,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/hyperfine-vbm:0.0.6"
+            "image": "flywheel/hyperfine-vbm:0.0.7"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
@@ -67,5 +67,5 @@
     "name": "hyperfine-vbm",
     "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
     "url": "",
-    "version": "0.0.6"
+    "version": "0.0.7"
 }
