@@ -36,8 +36,8 @@ def main(context: GearToolkitContext) -> None:
     exec_command(
     command,
     #dry_run=gear_options["dry-run"],
-    shell=False,
-    cont_output=True,
+    shell=False
+    # cont_output=True,
         )
 
 # Only execute if file is run as main, not when imported by another module

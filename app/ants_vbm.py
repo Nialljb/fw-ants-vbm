@@ -1,5 +1,7 @@
 import os, sys
 from pathlib import Path
+import subprocess
+import pandas as pd  
 
 # Pre-run gears:
 # 1. Isotropic reconstruction (CISO)
@@ -113,7 +115,7 @@ def vbm(subject, session):
     # 6: from the warp field, calculate the various jacobian matrices
     print("Calculating jacobian matrices...")
     logJacobian = (WORK + "/logJacobian.nii.gz")
-    gJacobian = (WORK + " /gJacobian.nii.gz")
+    gJacobian = (WORK + "/gJacobian.nii.gz")
 
     antsJacobian = (softwareHome + "CreateJacobianDeterminantImage 3 ")
     try:
@@ -130,8 +132,8 @@ def vbm(subject, session):
     logCorrectedCSFSegmentation = (WORK + "/studyCSF_corr.nii")
     try:
         os.system(antsMath + " " + logCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
-        os.system(antsMath + " " + logCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
-        os.system(antsMath + " " + logCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
+        os.system(antsMath + " " + logCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + logJacobian)
+        os.system(antsMath + " " + logCorrectedCSFSegmentation + " m " + maskedCSFSegmentation + " " + logJacobian)
     except:
         print("Error in calculating logJacobian")
         sys.exit(1)
@@ -141,17 +143,41 @@ def vbm(subject, session):
     gCorrectedCSFSegmentation = (WORK + "/studyCSF_gcorr.nii")
     try:
         os.system(antsMath + " " + gCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
-        os.system(antsMath + " " + gCorrectedGMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
-        os.system(antsMath + " " + gCorrectedCSFSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
+        os.system(antsMath + " " + gCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + gJacobian)
+        os.system(antsMath + " " + gCorrectedCSFSegmentation + " m " + maskedCSFSegmentation + " " + gJacobian)
     except:
         print("Error in calculating gJacobian")
         sys.exit(1)
 
+    # -----------------  Calculate the volumes  -----------------  #
+    
     # 8: Calculate the volumes of the tissue segmentations
     print("Calculating tissue volumes...")
-    # Setup in a seperate module
-    os.system("echo subject, session > " + WORK + "/demo.txt; echo " + subject + ", " + session + " >> " + WORK + "/demo.txt")  
-    os.system("echo WM > " + WORK + "/WMvol.txt; fslstats " + gCorrectedWMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/WMvol.txt")  
-    os.system("echo GM > " + WORK + "/GMvol.txt; fslstats " + gCorrectedGMSegmentation + " -V | awk '{print $1}' >> " + WORK + "/GMvol.txt")
-    os.system("echo CSV > " + WORK + "/CSVvol.txt; fslstats " + gCorrectedCSFSegmentation + " -V | awk '{print $1}' >> " + WORK + "/CSFvol.txt")
-    os.system('paste -d "," '  + WORK + '/demo.txt ' + WORK + '/WMvol.txt ' + WORK + '/GMvol.txt ' + WORK + '/CSFvol.txt > ' + OUTPUT_DIR + '/volumes.csv')
+
+    # subprocess with check_output runs a shell command and returns the output as a byte string, which is then decoded into a string (.decode("utf-8")
+    # We then convert the string to a float for calculations
+
+    # Calculate the volumes of the tissue segmentations
+    seg_vol_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
+    seg_vol_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+    seg_vol_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+
+    # Calculate the mean intensities
+    mi_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+
+    # Calculate the volumes by multiplying the mean intensity by the volume
+    wm_vol = int(seg_vol_wm * mi_wm)
+    gm_vol = int(seg_vol_gm * mi_gm)
+    csf_vol = int(seg_vol_csf * mi_csf)
+
+    print("WM volume: ", wm_vol)
+    print("GM volume: ", gm_vol)
+    print("CSF volume: ", csf_vol)
+
+    # assign values to lists.  
+    data = [{'subject': subject, 'session': session, 'wm_seg': seg_vol_wm, 'gm_seg': seg_vol_gm, 'csf_seg': seg_vol_csf, 'wn_mi': mi_wm, 'gm_mi': mi_gm, 'csf_mi': mi_csf, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
+    # Creates DataFrame.  
+    df = pd.DataFrame(data)  
+    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')

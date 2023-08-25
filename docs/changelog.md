@@ -21,3 +21,11 @@ To do:
 
 "version": "0.1.0"
 - changed entrypoint to config fsl before running
+
+25/08/2023
+"version": "0.1.2"
+
+- found rouge space in jocobian calculation which was causing failure
+- created pabndas dataframe for output that includes mask volume, mean intensities and estimated volume
+
+* There is a log error at the end which is unclear...
