@@ -5,7 +5,7 @@ import logging, subprocess
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
 # from app.test.test_fsl import test_fsl
-from app.command_line import exec_command
+# from app.command_line import exec_command
 from app.metadata import get_metadata
 from app.ants_vbm import vbm
 
@@ -30,15 +30,17 @@ def main(context: GearToolkitContext) -> None:
     # vbm(subject_label, session_label)
     
     command = vbm(subject_label, session_label) #"/flywheel/v0/app/main.py"
+    command
+
     # # os.system(command)
 
-    #This is what it is all about
-    exec_command(
-    command,
-    #dry_run=gear_options["dry-run"],
-    shell=False
+    # #This is what it is all about
+    # exec_command(
+    # command,
+    # #dry_run=gear_options["dry-run"],
+    # shell=False,
     # cont_output=True,
-        )
+    #     )
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover
