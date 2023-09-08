@@ -28,6 +28,7 @@ def vbm(subject, session):
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
+    ROIs = (FLYWHEEL_BASE + "/app/templates/subcortical/")
 
     # Individual input variables
     individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
@@ -127,9 +128,9 @@ def vbm(subject, session):
 
     # 7: multiply the aligned images by the jacobian matrix to correct for the effect of the warp
     print("Multiplying aligned images by jacobian matrix...")
-    logCorrectedWMSegmentation = (WORK + "/studyWM_corr.nii")
-    logCorrectedGMSegmentation = (WORK + "/studyGM_corr.nii")
-    logCorrectedCSFSegmentation = (WORK + "/studyCSF_corr.nii")
+    logCorrectedWMSegmentation = (OUTPUT_DIR + "/studyWM_corr.nii")
+    logCorrectedGMSegmentation = (OUTPUT_DIR + "/studyGM_corr.nii")
+    logCorrectedCSFSegmentation = (OUTPUT_DIR + "/studyCSF_corr.nii")
     try:
         os.system(antsMath + " " + logCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
         os.system(antsMath + " " + logCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + logJacobian)
@@ -138,9 +139,9 @@ def vbm(subject, session):
         print("Error in calculating logJacobian")
         sys.exit(1)
 
-    gCorrectedWMSegmentation = (WORK + "/studyWM_gcorr.nii")
-    gCorrectedGMSegmentation = (WORK + "/studyGM_gcorr.nii")
-    gCorrectedCSFSegmentation = (WORK + "/studyCSF_gcorr.nii")
+    gCorrectedWMSegmentation = (OUTPUT_DIR + "/studyWM_gcorr.nii")
+    gCorrectedGMSegmentation = (OUTPUT_DIR + "/studyGM_gcorr.nii")
+    gCorrectedCSFSegmentation = (OUTPUT_DIR + "/studyCSF_gcorr.nii")
     try:
         os.system(antsMath + " " + gCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
         os.system(antsMath + " " + gCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + gJacobian)
@@ -176,8 +177,23 @@ def vbm(subject, session):
     print("GM volume: ", gm_vol)
     print("CSF volume: ", csf_vol)
 
-    # assign values to lists.  
-    data = [{'subject': subject, 'session': session, 'wm_seg': seg_vol_wm, 'gm_seg': seg_vol_gm, 'csf_seg': seg_vol_csf, 'wn_mi': mi_wm, 'gm_mi': mi_gm, 'csf_mi': mi_csf, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
+
+    # assign values to lists. 
+    # 'wm_seg': seg_vol_wm, 'gm_seg': seg_vol_gm, 'csf_seg': seg_vol_csf, 'wn_mi': mi_wm, 'gm_mi': mi_gm, 'csf_mi': mi_csf,  
+    data = [{'subject': subject, 'session': session, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
-    df = pd.DataFrame(data)  
+    df = pd.DataFrame(data)
+
+    # Estimate volumes of ROIs
+    for region in os.listdir(ROIs):
+        f = os.path.join(ROIs, region)
+        # checking if it is a file
+        if os.path.isfile(f):
+            regionName = region.split(".")[0]
+            print(regionName)  
+            est = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+            mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+            volume = int(est * mask_vol)
+            df[regionName] = volume
+
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
