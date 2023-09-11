@@ -19,6 +19,7 @@ for tissueDir in `ls ${base}/app/templates/atlas`
         tissue="gm"
     elif [ tissueDir == "wm" ] ; then
         tissue="wm"
+    fi
 
     for atlasDir in `ls ${tissueDir}`
         do
