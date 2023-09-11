@@ -15,9 +15,9 @@ antsRegistrationSyNQuick.sh -f ${ref} -m ${base}/app/templates/mni_icbm152_t1_ta
 
 for tissueDir in `ls ${base}/app/templates/atlas`
     do
-    if [ tissueDir == "gm"] ; then
+    if [ $tissueDir == "gm"] ; then
         tissue="gm"
-    elif [ tissueDir == "wm" ] ; then
+    elif [ $tissueDir == "wm" ] ; then
         tissue="wm"
     fi
 
