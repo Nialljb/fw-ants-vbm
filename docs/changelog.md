@@ -29,3 +29,14 @@ To do:
 - created pabndas dataframe for output that includes mask volume, mean intensities and estimated volume
 
 * There is a log error at the end which is unclear...
+
+08/09/2023
+Trying to include ROIs estimations (Should be moved to seperate module - to allow flexibility in selecing atlas)
+* ANTs not installed on personal computer so need to follow up with debugging 
+
+11/09/2023
+"version": "0.1.5"
+**beta** uploaded to test the following
+- inlcuded shell script to change dimensions of masks in an atlas folder to match the individual
+- volume estimation using the registered masks in main VMB script
+- subprocess.run may be better than os.system and try/catch statements should run as expected 

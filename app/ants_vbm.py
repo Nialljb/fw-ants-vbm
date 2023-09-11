@@ -19,6 +19,22 @@ import pandas as pd
 # 5. Apply the warp to the ROIs & tissue segmentations
 # 6. Calculate the jacobian matrices
 
+# Issues:
+# Try/catch statements are not working as expected.
+# exit(1) does not stop the gear from running
+# print statements are being printed at the end of the gear run (not when they are called)
+# ROI volumes would be better as a separate module
+
+
+# May catch errors with try/catch statements (subprocess.run recommended over os.system)
+# import subprocess
+# try:
+#     subprocess.run(['wrongcommand'], check = True)
+# except subprocess.CalledProcessError:
+#     print ('wrongcommand does not exist')
+
+
+
 # setup as a function
 def vbm(subject, session):
     
@@ -28,7 +44,7 @@ def vbm(subject, session):
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
-    ROIs = (FLYWHEEL_BASE + "/app/templates/subcortical/")
+    ROIs = (WORK + "/atlas/")
 
     # Individual input variables
     individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
@@ -177,23 +193,63 @@ def vbm(subject, session):
     print("GM volume: ", gm_vol)
     print("CSF volume: ", csf_vol)
 
-
     # assign values to lists. 
     # 'wm_seg': seg_vol_wm, 'gm_seg': seg_vol_gm, 'csf_seg': seg_vol_csf, 'wn_mi': mi_wm, 'gm_mi': mi_gm, 'csf_mi': mi_csf,  
     data = [{'subject': subject, 'session': session, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
 
-    # Estimate volumes of ROIs
-    for region in os.listdir(ROIs):
-        f = os.path.join(ROIs, region)
-        # checking if it is a file
-        if os.path.isfile(f):
-            regionName = region.split(".")[0]
-            print(regionName)  
-            est = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-            mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
-            volume = int(est * mask_vol)
-            df[regionName] = volume
+    # -----------------  Calculate the volumes of the ROIs  -----------------  #
+
+    # # Estimate volumes of ROIs ##
+    # Note: Need to multiply ROIs by the tissue segmentation 
+    # This would probebly be best as a separate module
+
+    print("Adjusting ROI masks to individual space..")
+    try:
+        subprocess.run(["/flywheel/v0/app/changeMaskDim.sh " + studyBrainReference], shell=True)
+    except:
+        print("Error in changing mask dimensions")
+        sys.exit(1)
+
+    try:
+        print("Calculating ROI volumes...")
+        gm_roi = (ROIs + "/gm")
+        wm_roi = (ROIs + "/wm")
+
+        for atlas in os.listdir(gm_roi):
+            for region in os.listdir(atlas):
+                f = os.path.join(atlas, region)
+                # checking if it is a file
+                if os.path.isfile(f):
+                    regionName = region.split(".")[0]
+                    print(regionName)  
+                    # mask = (WORK + "/" + regionName + "_mask.nii.gz")
+                    # os.system(antsMath + " " + mask + " m " + maskedWMSegmentation + " " + f)
+
+                    est = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+                    mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+                    volume = int(est * mask_vol)
+                    df[regionName] = volume
+
+        for atlas in os.listdir(wm_roi):
+            for region in os.listdir(atlas):
+                f = os.path.join(atlas, region)
+                # checking if it is a file
+                if os.path.isfile(f):
+                    regionName = region.split(".")[0]
+                    print(regionName)  
+                    # mask = (WORK + "/" + regionName + "_mask.nii.gz")
+                    # os.system(antsMath + " " + mask + " m " + maskedWMSegmentation + " " + f)
+
+                    est = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+                    mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+                    volume = int(est * mask_vol)
+                    df[regionName] = volume
+                    
+    except:
+        print("Error in calculating ROI volumes")
+        sys.exit(1)
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
+    print("Volumes saved to: ", OUTPUT_DIR + '/volumes.csv')
