@@ -144,9 +144,9 @@ def vbm(subject, session):
 
     # 7: multiply the aligned images by the jacobian matrix to correct for the effect of the warp
     print("Multiplying aligned images by jacobian matrix...")
-    logCorrectedWMSegmentation = (OUTPUT_DIR + "/studyWM_corr.nii")
-    logCorrectedGMSegmentation = (OUTPUT_DIR + "/studyGM_corr.nii")
-    logCorrectedCSFSegmentation = (OUTPUT_DIR + "/studyCSF_corr.nii")
+    logCorrectedWMSegmentation = (OUTPUT_DIR + "/WM_corr.nii")
+    logCorrectedGMSegmentation = (OUTPUT_DIR + "/GM_corr.nii")
+    logCorrectedCSFSegmentation = (OUTPUT_DIR + "/CSF_corr.nii")
     try:
         os.system(antsMath + " " + logCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + logJacobian)
         os.system(antsMath + " " + logCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + logJacobian)
@@ -155,9 +155,9 @@ def vbm(subject, session):
         print("Error in calculating logJacobian")
         sys.exit(1)
 
-    gCorrectedWMSegmentation = (OUTPUT_DIR + "/studyWM_gcorr.nii")
-    gCorrectedGMSegmentation = (OUTPUT_DIR + "/studyGM_gcorr.nii")
-    gCorrectedCSFSegmentation = (OUTPUT_DIR + "/studyCSF_gcorr.nii")
+    gCorrectedWMSegmentation = (OUTPUT_DIR + "/WM_gcorr.nii")
+    gCorrectedGMSegmentation = (OUTPUT_DIR + "/GM_gcorr.nii")
+    gCorrectedCSFSegmentation = (OUTPUT_DIR + "/CSF_gcorr.nii")
     try:
         os.system(antsMath + " " + gCorrectedWMSegmentation + " m " + maskedWMSegmentation + " " + gJacobian)
         os.system(antsMath + " " + gCorrectedGMSegmentation + " m " + maskedGMSegmentation + " " + gJacobian)
