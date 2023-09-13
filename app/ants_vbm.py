@@ -217,14 +217,17 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
     # Mask registration
-    registration.MNI2BCP(studyBrainReference, WORK)
+    try:
+        registration.MNI2BCP(studyBrainReference, WORK)
 
-    if Jolly == True:
-        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
+        if Jolly == True:
+            df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
 
-    if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
-
+        if HarvardOxford_Subcortical == True:
+            df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+    except:
+        print("Error in ROI calculations")
+     
     # -----------------  Save the volumes  -----------------  #
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
