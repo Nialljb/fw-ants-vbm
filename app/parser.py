@@ -5,7 +5,7 @@ from flywheel_gear_toolkit import GearToolkitContext
 
 def parse_config(
     gear_context: GearToolkitContext,
-) -> Tuple[str, bool, bool, bool, bool]:
+) -> Tuple[str, bool, bool, bool, bool, bool]:
     """Parses the config info.
     Args:
         gear_context: Context.

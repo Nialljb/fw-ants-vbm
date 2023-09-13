@@ -15,12 +15,12 @@ def run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, wm, wm_mask,
             else:
                 # 2: Perform the warp on the individual brain image to align it to the template
                 print("Aligning ROI...")
-                MNI_WARP = (WORK + "/mni2bcp_1Warp.nii.gz")
-                MNI_AFFINE = (WORK + "/mni2bcp_0GenericAffine.mat")
+                MNI_WARP = (OUTPUT_DIR + "/mni2bcp_1Warp.nii.gz")
+                MNI_AFFINE = (OUTPUT_DIR + "/mni2bcp_0GenericAffine.mat")
                 MNIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
                 # Run registration
                 # subprocess.run(["WarpImageMultiTransform 3 " + f + " " + MNIAligned + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField +" --use-BSpline"], shell=True, check=True)	
-                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned])
+                subprocess.run(['/opt/ants/bin/antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned])
                 subprocess.run(["fslmaths " + MNIAligned + " -mul " + wm_mask + " " + MNIAligned], shell=True, check=True)	
 
                 # Calculate volume
@@ -44,13 +44,13 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm
             else:
                 # 2: Perform the warp on the individual brain image to align it to the template
                 print("Aligning ROI...")
-                MNI_WARP = (WORK + "/mni2bcp_1Warp.nii.gz")
-                MNI_AFFINE = (WORK + "/mni2bcp_0GenericAffine.mat")
+                MNI_WARP = (OUTPUT_DIR + "/mni2bcp_1Warp.nii.gz")
+                MNI_AFFINE = (OUTPUT_DIR + "/mni2bcp_0GenericAffine.mat")
                 MNIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
 
                 # Run registration
                 # subprocess.run(["WarpImageMultiTransform 3 " + f + " " + MNIAligned + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField +" --use-BSpline"], shell=True, check=True)	
-                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned])
+                subprocess.run(['/opt/ants/bin/antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned])
                 subprocess.run(["fslmaths " + MNIAligned + " -mul " + gm_mask + " " + MNIAligned], shell=True, check=True)	
             
                 # Calculate volume

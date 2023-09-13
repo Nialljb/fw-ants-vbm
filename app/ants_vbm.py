@@ -93,7 +93,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # 1: Calculate the warp from the individual to the template brain
     # save output as studyBrainReferenceAligned
     print("Calculating warp from individual to template brain...")
-    studyAlignedBrainImage = (WORK + "/isotropicReconstruction_corrected_masked_aligned.nii.gz")
+    studyAlignedBrainImage = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_aligned.nii.gz")
     try:
         os.system(antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
     except:
@@ -101,13 +101,13 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
         sys.exit(1)
 
     # Define variables from warp calculation in step 1
-    brainWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedWarp.nii.gz")
-    brainAffineField = (WORK + "/isotropicReconstruction_corrected_masked_alignedAffine.txt")
-    brainInverseWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedInverseWarp.nii.gz")
+    brainWarpField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedWarp.nii.gz")
+    brainAffineField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedAffine.txt")
+    brainInverseWarpField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedInverseWarp.nii.gz")
 
     # 2: Perform the warp on the individual brain image to align it to the template
     print("Aligning individual brain to template...")
-    alignedBrainImage = (WORK + "/isotropicReconstruction_to_brainReferenceAligned.nii.gz")
+    alignedBrainImage = (OUTPUT_DIR + "/isotropicReconstruction_to_brainReferenceAligned.nii.gz")
     try:
         os.system(antsImageAlign + " " + individualMaskedBrain + " " + alignedBrainImage + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline")	
     except:
@@ -119,9 +119,9 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # Output variables
     print("Aligning tissue segmentations to template...")
-    individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
-    individualGraySegmentation = (WORK + "/initialGM.nii.gz")
-    individualCSFSegmentation = (WORK + "/initialCSF.nii.gz")
+    individualWhiteSegmentation = (OUTPUT_DIR + "/initialWM.nii.gz")
+    individualGraySegmentation = (OUTPUT_DIR + "/initialGM.nii.gz")
+    individualCSFSegmentation = (OUTPUT_DIR + "/initialCSF.nii.gz")
 
     try:
         os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
@@ -133,9 +133,9 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # 4: Use output from hd-bet to mask the tissue segmentations
     print("Masking tissue segmentations...")
-    maskedWMSegmentation = (WORK + "/maskedWM.nii.gz")
-    maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
-    maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
+    maskedWMSegmentation = (OUTPUT_DIR + "/maskedWM.nii.gz")
+    maskedGMSegmentation = (OUTPUT_DIR + "/maskedGM.nii.gz")
+    maskedCSFSegmentation = (OUTPUT_DIR + "/maskedCSF.nii.gz")
 
     try:
         os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + " " + maskedWMSegmentation)
@@ -147,8 +147,8 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # 6: from the warp field, calculate the various jacobian matrices
     print("Calculating jacobian matrices...")
-    logJacobian = (WORK + "/logJacobian.nii.gz")
-    gJacobian = (WORK + "/gJacobian.nii.gz")
+    logJacobian = (OUTPUT_DIR + "/logJacobian.nii.gz")
+    gJacobian = (OUTPUT_DIR + "/gJacobian.nii.gz")
 
     antsJacobian = (softwareHome + "CreateJacobianDeterminantImage 3 ")
     try:
@@ -217,16 +217,16 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
     # Mask registration
-    try:
-        registration.MNI2BCP(studyBrainReference, WORK)
+    # try:
+    registration.MNI2BCP(studyBrainReference, OUTPUT_DIR)
 
-        if Jolly == True:
-            df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
+    if Jolly == True:
+        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
 
-        if HarvardOxford_Subcortical == True:
-            df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
-    except:
-        print("Error in ROI calculations")
+    if HarvardOxford_Subcortical == True:
+        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+    # except:
+    #     print("Error in ROI calculations")
      
     # -----------------  Save the volumes  -----------------  #
 
