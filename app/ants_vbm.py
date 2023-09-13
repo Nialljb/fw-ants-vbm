@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 import pandas as pd  
 import utils.ROI as ROI
+import utils.registration as registration
 
 # Pre-run gears:
 # 1. Isotropic reconstruction (CISO)
@@ -113,7 +114,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
         print("Error in aligning individual brain to template")
         sys.exit(1)
 
-    # 3: now align the individual white matter, gray matter, and csf maps to the brain 
+    # 3: now align the individual white matter, gray matter, and csf priors to the individual brain using reverse warp
     #  Take the template priors and align them to the individual space
 
     # Output variables
@@ -215,11 +216,14 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
+    # Mask registration
+    registration.MNI2BCP(studyBrainReference, WORK)
+
     if Jolly == True:
-        df = ROI.run_jolly(FLYWHEEL_BASE, OUTPUT_DIR, studyBrainReference, brainWarpField, brainInverseWarpField, gCorrectedWMSegmentation, maskedWMSegmentation, df)
+        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
 
     if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, OUTPUT_DIR, studyBrainReference, brainWarpField, brainInverseWarpField, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
 
     # -----------------  Save the volumes  -----------------  #
 
