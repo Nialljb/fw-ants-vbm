@@ -7,7 +7,7 @@ from datetime import datetime
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
 
-def get_metadata():
+def get_demo():
 
     # Read config.json file
     p = open('/flywheel/v0/config.json')
@@ -158,7 +158,7 @@ def get_metadata():
                     elif age < 800:
                         target_template = '24Month'
                     else:
-                        print("age is too old - out of expected range")
+                        print("age is > than 23 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
                     
                     print("target_template: ", target_template)
 
@@ -166,4 +166,4 @@ def get_metadata():
                     print(Template)
                     os.system('cp -r '+Template+' /flywheel/v0/work/')
 
-    return subject_label, session_label
+    return subject_label, session_label, target_template

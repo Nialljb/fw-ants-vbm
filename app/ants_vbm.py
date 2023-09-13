@@ -2,6 +2,7 @@ import os, sys
 from pathlib import Path
 import subprocess
 import pandas as pd  
+import utils.ROI as ROI
 
 # Pre-run gears:
 # 1. Isotropic reconstruction (CISO)
@@ -36,15 +37,29 @@ import pandas as pd
 
 
 # setup as a function
-def vbm(subject, session):
+def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
+    print("Input: ", input)
+    print("subject_label: ", subject_label)
+    print("session_label: ", session_label)
+    print("target_template: ", target_template)
+    print("HarvardOxford_Cortical: ", HarvardOxford_Cortical)
+    print("HarvardOxford_Subcortical: ", HarvardOxford_Subcortical)
+    print("Glasser: ", Glasser)
+    print("Jolly: ", Jolly)
+    print("ICBM81: ", ICBM81)
+
+    # Define output dataframe
+    data = [{'subject': subject_label, 'session': session_label}]  
+    # Creates DataFrame.  
+    df = pd.DataFrame(data)
+
     #  -------------------  Import the necessary packages & variables -------------------  #
     # Set up the paths
     FLYWHEEL_BASE = "/flywheel/v0"
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
-    # ROIs = (WORK + "/atlas/")
 
     # Individual input variables
     individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
@@ -98,7 +113,7 @@ def vbm(subject, session):
         print("Error in aligning individual brain to template")
         sys.exit(1)
 
-    # 3: now align the individual white matter, gray matter, and csf maps to the brain template
+    # 3: now align the individual white matter, gray matter, and csf maps to the brain 
     #  Take the template priors and align them to the individual space
 
     # Output variables
@@ -194,62 +209,19 @@ def vbm(subject, session):
     print("CSF volume: ", csf_vol)
 
     # assign values to lists. 
-    # 'wm_seg': seg_vol_wm, 'gm_seg': seg_vol_gm, 'csf_seg': seg_vol_csf, 'wn_mi': mi_wm, 'gm_mi': mi_gm, 'csf_mi': mi_csf,  
-    data = [{'subject': subject, 'session': session, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
+    data = [{'subject': subject_label, 'session': session_label, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
 
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
-    # # Estimate volumes of ROIs ##
-    # Note: Need to multiply ROIs by the tissue segmentation 
-    # This would probebly be best as a separate module
+    if Jolly == True:
+        df = ROI.run_jolly(FLYWHEEL_BASE, OUTPUT_DIR, studyBrainReference, brainWarpField, brainInverseWarpField, gCorrectedWMSegmentation, maskedWMSegmentation, df)
 
-    # print("Adjusting ROI masks to individual space..")
-    # try:
-    #     subprocess.run(["/flywheel/v0/app/changeMaskDim.sh " + studyBrainReference], shell=True)
-    # except:
-    #     print("Error in changing mask dimensions")
-    #     sys.exit(1)
+    if HarvardOxford_Subcortical == True:
+        df = ROI.run_subcortical(FLYWHEEL_BASE, OUTPUT_DIR, studyBrainReference, brainWarpField, brainInverseWarpField, gCorrectedGMSegmentation, maskedGMSegmentation, df)
 
-    # try:
-    #     print("Calculating ROI volumes...")
-    #     gm_roi = (ROIs + "/gm")
-    #     wm_roi = (ROIs + "/wm")
-
-    #     for atlas in os.listdir(gm_roi):
-    #         for region in os.listdir(atlas):
-    #             f = os.path.join(atlas, region)
-    #             # checking if it is a file
-    #             if os.path.isfile(f):
-    #                 regionName = region.split(".")[0]
-    #                 print(regionName)  
-    #                 # mask = (WORK + "/" + regionName + "_mask.nii.gz")
-    #                 # os.system(antsMath + " " + mask + " m " + maskedWMSegmentation + " " + f)
-
-    #                 est = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    #                 mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
-    #                 volume = int(est * mask_vol)
-    #                 df[regionName] = volume
-
-    #     for atlas in os.listdir(wm_roi):
-    #         for region in os.listdir(atlas):
-    #             f = os.path.join(atlas, region)
-    #             # checking if it is a file
-    #             if os.path.isfile(f):
-    #                 regionName = region.split(".")[0]
-    #                 print(regionName)  
-    #                 # mask = (WORK + "/" + regionName + "_mask.nii.gz")
-    #                 # os.system(antsMath + " " + mask + " m " + maskedWMSegmentation + " " + f)
-
-    #                 est = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + f + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    #                 mask_vol = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + f + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
-    #                 volume = int(est * mask_vol)
-    #                 df[regionName] = volume
-                    
-    # except:
-    #     print("Error in calculating ROI volumes")
-    #     sys.exit(1)
+    # -----------------  Save the volumes  -----------------  #
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
     print("Volumes saved to: ", OUTPUT_DIR + '/volumes.csv')
