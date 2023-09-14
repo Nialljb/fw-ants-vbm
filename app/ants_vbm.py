@@ -20,24 +20,13 @@ import utils.registration as registration
 # 4. Brain mask bias corrected images
 # 5. Apply the warp to the ROIs & tissue segmentations
 # 6. Calculate the jacobian matrices
+# 7. Multiply the aligned images by the jacobian matrix to correct for the effect of the warp
+# 8. Calculate the volumes of the tissue segmentations
+# 9. Calculate the volumes of the ROIs
+# 10. Save the volumes
 
-# Issues:
-# Try/catch statements are not working as expected.
-# exit(1) does not stop the gear from running
-# print statements are being printed at the end of the gear run (not when they are called)
-# ROI volumes would be better as a separate module
+#  -------------------  The main event -------------------  #
 
-
-# May catch errors with try/catch statements (subprocess.run recommended over os.system)
-# import subprocess
-# try:
-#     subprocess.run(['wrongcommand'], check = True)
-# except subprocess.CalledProcessError:
-#     print ('wrongcommand does not exist')
-
-
-
-# setup as a function
 def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
     print("Input: ", input)
@@ -52,7 +41,6 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # Define output dataframe
     data = [{'subject': subject_label, 'session': session_label}]  
-    # Creates DataFrame.  
     df = pd.DataFrame(data)
 
     #  -------------------  Import the necessary packages & variables -------------------  #
@@ -93,7 +81,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # 1: Calculate the warp from the individual to the template brain
     # save output as studyBrainReferenceAligned
     print("Calculating warp from individual to template brain...")
-    studyAlignedBrainImage = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_aligned.nii.gz")
+    studyAlignedBrainImage = (WORK + "/isotropicReconstruction_corrected_masked_aligned.nii.gz")
     try:
         os.system(antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
     except:
@@ -101,13 +89,13 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
         sys.exit(1)
 
     # Define variables from warp calculation in step 1
-    brainWarpField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedWarp.nii.gz")
-    brainAffineField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedAffine.txt")
-    brainInverseWarpField = (OUTPUT_DIR + "/isotropicReconstruction_corrected_masked_alignedInverseWarp.nii.gz")
+    brainWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedWarp.nii.gz")
+    brainAffineField = (WORK + "/isotropicReconstruction_corrected_masked_alignedAffine.txt")
+    brainInverseWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedInverseWarp.nii.gz")
 
     # 2: Perform the warp on the individual brain image to align it to the template
     print("Aligning individual brain to template...")
-    alignedBrainImage = (OUTPUT_DIR + "/isotropicReconstruction_to_brainReferenceAligned.nii.gz")
+    alignedBrainImage = (WORK + "/isotropicReconstruction_to_brainReferenceAligned.nii.gz")
     try:
         os.system(antsImageAlign + " " + individualMaskedBrain + " " + alignedBrainImage + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline")	
     except:
@@ -119,9 +107,9 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # Output variables
     print("Aligning tissue segmentations to template...")
-    individualWhiteSegmentation = (OUTPUT_DIR + "/initialWM.nii.gz")
-    individualGraySegmentation = (OUTPUT_DIR + "/initialGM.nii.gz")
-    individualCSFSegmentation = (OUTPUT_DIR + "/initialCSF.nii.gz")
+    individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
+    individualGraySegmentation = (WORK + "/initialGM.nii.gz")
+    individualCSFSegmentation = (WORK + "/initialCSF.nii.gz")
 
     try:
         os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
@@ -133,9 +121,9 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # 4: Use output from hd-bet to mask the tissue segmentations
     print("Masking tissue segmentations...")
-    maskedWMSegmentation = (OUTPUT_DIR + "/maskedWM.nii.gz")
-    maskedGMSegmentation = (OUTPUT_DIR + "/maskedGM.nii.gz")
-    maskedCSFSegmentation = (OUTPUT_DIR + "/maskedCSF.nii.gz")
+    maskedWMSegmentation = (WORK + "/maskedWM.nii.gz")
+    maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
+    maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
 
     try:
         os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + " " + maskedWMSegmentation)
@@ -147,8 +135,8 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
 
     # 5: Threshold the tissue segmentations to create eroded binary masks
-    GM_mask = (OUTPUT_DIR + "/GM_mask.nii.gz")
-    WM_mask = (OUTPUT_DIR + "/WM_mask.nii.gz")
+    GM_mask = (WORK + "/GM_mask.nii.gz")
+    WM_mask = (WORK + "/WM_mask.nii.gz")
     subprocess.run(["fslmaths " + maskedGMSegmentation + " -thr 0.3 -bin " + GM_mask], shell=True, check=True)
     subprocess.run(["fslmaths " + maskedWMSegmentation + " -thr 0.3 -bin " + WM_mask], shell=True, check=True)
 
@@ -224,7 +212,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
     # 9: Calculate warps from MNI to BCP
-    registration.MNI2BCP(studyBrainReference, OUTPUT_DIR)
+    registration.MNI2BCP(studyBrainReference, WORK)
 
     # 10: ROI registration
     if Jolly == True:
@@ -242,7 +230,11 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     if ICBM81 == True:
         print("Sorry, ICBM 81 atlas is not yet implemented")
 
-     
+    #  tmp save ROIs to sanity check registration
+    subprocess.run(["cp " + WORK + "/Bodyofcorpuscallosum_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
+    subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
+    subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
+
     # -----------------  Save the volumes  -----------------  #
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')

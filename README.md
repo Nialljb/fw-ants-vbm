@@ -1,14 +1,12 @@
-# Synthseg
+# ANTs VBM
 
-(UNDER DEVELOPMENT): 
-This gear attempts Voxel Based Morophometry using ANTs inspired by Seans paper 
-https://www.sciencedirect.com/science/article/pii/S1053811921005498
+This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs
 
 
 ## Overview
 
 [Usage](#usage)
-
+The configuration allows a selection of atlas' to choose from. ROI volume estimation will be performed on these.
 [FAQ](#faq)
 
 ### Summary

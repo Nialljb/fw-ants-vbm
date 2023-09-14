@@ -59,13 +59,7 @@ def get_demo():
             status = matches[0].job.get('state')
             # print(status)
             
-            for file in matches[0].files:
-                # print(file)
-
-                # if file.name == 'isotropicReconstruction_corrected_hdbet.nii.gz':
-                #     beted_brain = file
-                #     print(file.name)
-                
+            for file in matches[0].files:                
                 if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
                     brain_mask = file
                     print("Found ", file.name)
@@ -89,12 +83,7 @@ def get_demo():
             status = last_run_analysis.job.get('state')
 
             for file in last_run_analysis.files:
-                # print(file)
-
-                # if file.name == 'isotropicReconstruction_corrected_hdbet.nii.gz':
-                #     beted_brain = file
-                #     print(file.name)
-                
+                # print(file)                
                 if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
                     brain_mask = file
                     print("Found ", file.name)
@@ -107,7 +96,6 @@ def get_demo():
 
     # -------------------  Get the subject age & matching template  -------------------  #
 
-
     # get the T2w axi dicom acquisition from the session
     # Should contain the DOB in the dicom header
     # Some projects may have DOB removed, but may have age at scan in the subject container
@@ -119,24 +107,6 @@ def get_demo():
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
-
-                    # # Get DOB from dicom header
-                    # try:
-                    #     dob = file_obj.info['PatientBirthDate']
-                    # except:
-                    #     print("No DOB in dicom header & no age found")
-                    #     # Alternative workflow to get AGE from subject container??
-                    #     continue 
-                    # # Get series date from dicom header
-                    # seriesDate = file_obj.info['SeriesDate']
-                    # # print("seriesDate: ", seriesDate)
-                    # # Calculate age at scan
-                    # age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
-                    # # Find the target template based on the session label
-                    
-                    # age = age.days
-                    # print("age: ", age)
-
                     if 'PatientBirthDate' in file_obj.info:
                         # Get dates from dicom header
                         dob = file_obj.info['PatientBirthDate']

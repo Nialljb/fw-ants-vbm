@@ -53,14 +53,14 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/hyperfine-vbm:0.2.7"
+            "image": "flywheel/hyperfine-vbm:0.2.8"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
             "anat"
         ]
     },
-    "description": "(UNDER DEVELOPMENT - DO NOT RUN!): This gear takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants.",
+    "description": "This gear takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants. ROI outputs can be selected from a number of atlases in the configuration.",
     "environment": {
         "CONDA_DIR": "/opt/conda",
         "FLYWHEEL": "/flywheel/v0",
@@ -93,5 +93,5 @@
     "name": "hyperfine-vbm",
     "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
     "url": "",
-    "version": "0.2.7"
+    "version": "0.2.8"
 }
