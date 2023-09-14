@@ -1,12 +1,10 @@
 # ANTs VBM
-
-This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs
-
+This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs on infants between 0-2 years old with isotropic reconstructed Hyperfine scans.
 
 ## Overview
 
 [Usage](#usage)
-The configuration allows a selection of atlas' to choose from. ROI volume estimation will be performed on these.
+Should be automated if setup correctly. Requires age to select appropriate template for registration. The configuration allows a selection of atlases to choose from. ROI volume estimation will be performed on these.
 [FAQ](#faq)
 
 ### Summary
@@ -17,15 +15,17 @@ Takes the isotropic hyperfine reconstructions that have been bias corrected (N4)
 ### Cite
 
 **license:**
-
+MIT License  
 
 **url:** <https://gitlab.com/flywheel-io/flywheel-apps/>
 
 **cite:**  
 Sean C.L. Deoni, Muriel M.K. Bruchhage, Jennifer Beauchemin, Alexandra Volpe, Viren D'Sa, Matthew Huentelman, Steven C.R. Williams,
 Accessible pediatric neuroimaging using a low field strength MRI scanner, NeuroImage, Volume 238, 2021, 118273, ISSN 1053-8119,
-https://doi.org/10.1016/j.neuroimage.2021.118273.
-(https://www.sciencedirect.com/science/article/pii/S1053811921005498)
+https://doi.org/10.1016/j.neuroimage.2021.118273.  
+(https://www.sciencedirect.com/science/article/pii/S1053811921005498)  
+
+Bourke, N. J., Demarchi, C., De Simoni, S., Samra, R., Patel, M. C., Kuczynski, A., Mok, Q., Wimalasundera, N., Vargha-Khadem, F., & Sharp, D. J. (2022). Brain volume abnormalities and clinical outcomes following paediatric traumatic brain injury. Brain, 145(8), 2920\u20132934. https://doi.org/10.1093/brain/awac130  
 
 ### Classification
 
@@ -34,10 +34,10 @@ https://doi.org/10.1016/j.neuroimage.2021.118273.
 *Gear Level:*
 
 * [ ] Project
-* [x] Subject
-* [x] Session
+* [ ] Subject
+* [ ] Session
 * [ ] Acquisition
-* [ ] Analysis
+* [x] Analysis
 
 ----
 
@@ -52,15 +52,9 @@ https://doi.org/10.1016/j.neuroimage.2021.118273.
 
 ### Config
 
-* debug
-  * **Name**: debug
-  * **Type**: boolean
-  * **Description**: Log debug messages
-  * **Default**: false
-
 * input
   * **Base**: file
-  * **Description**: input file (usually isotropic reconstruction)
+  * **Description**: input file (isotropic reconstruction, bias corrected & skull stripped)
   * **Optional**: false
 
 ### Outputs
@@ -69,21 +63,10 @@ https://doi.org/10.1016/j.neuroimage.2021.118273.
   * **Description**: segmentated file 
   * **Optional**: false
 
-* parcelation
-  * **Base**: file
-  * **Description**: parcelation file 
-  * **Optional**: true
-
-* vol
+* volume
   * **Base**: file
   * **Description**: volume estimation file (csv)
   * **Optional**: true
-
-* QC
-  * **Base**: file
-  * **Description**: QC file (csv)
-  * **Optional**: true
-
 
 #### Metadata
 
@@ -91,12 +74,9 @@ No metadata currently created by this gear
 
 ### Pre-requisites
 
-- Three dimensional structural image
+- Three dimensional structural image, bias corrected and skull stripped
 
 #### Prerequisite Gear Runs
-
-This gear runs on BIDS-organized data. To have your data BIDS-ified, it is recommended
-that you run, in the following order:
 
 1. ***dcm2niix***
     * Level: Any
@@ -114,8 +94,7 @@ it does, but HOW it works in flywheel
 
 ### Description
 
-This gear is run at either the `Subject` or the `Session` level. It downloads the data
-for that subject/session into the `/flwyhweel/v0/work/bids` folder and then runs the
+This gear is run at either the `Subject` or the `Session` level. It downloads the data from the output of a previously run `HD-BET` analysis for that subject/session into the `/flwyhweel/v0/work/` folder and then runs the
 `hyperfine-vbm` pipeline on it.
 
 After the pipeline is run, the output folder is zipped and saved into the analysis
