@@ -3,6 +3,7 @@ import os
 import json
 import pandas as pd
 from datetime import datetime
+import re
 
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
@@ -160,7 +161,7 @@ def get_demo():
 
                     if age == 0:
                         print("No age at scan - skipping")
-                        break
+                        exit(1)
                     # Make sure age is positive
                     elif age < 0:
                         age = age * -1

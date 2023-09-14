@@ -48,3 +48,6 @@ MUCH trial and error debugging..
 - Should be a working beta version (will save ALL outputs - will remove all ROI masks after sanity checking)
 - Cortical masks included
 - Subcortical are thresholded (0.7), Thalamus & Caudated still too liberal, may need to threshold seperatly. 
+
+"version": "0.2.7"
+- More ways of catching age
