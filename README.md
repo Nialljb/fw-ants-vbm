@@ -17,7 +17,7 @@ Takes the isotropic hyperfine reconstructions that have been bias corrected (N4)
 **license:**
 MIT License  
 
-**url:** <https://gitlab.com/flywheel-io/flywheel-apps/>
+**url:** <https://github.com/Nialljb/fw-ants-vbm>
 
 **cite:**  
 Sean C.L. Deoni, Muriel M.K. Bruchhage, Jennifer Beauchemin, Alexandra Volpe, Viren D'Sa, Matthew Huentelman, Steven C.R. Williams,
@@ -110,14 +110,12 @@ A picture and description of the workflow
 
 ```mermaid
   graph LR;
-    A[T1w]:::input --> FW;
-    FW[FW] --> FMI;
-    FMI((file-metadata-importer)):::gear --> FC;
-    FC((file-classifier)):::gear --> D2N;
-    D2N((dcm2niix)):::gear --> CB;
-    CB((curate-bids)):::gear --> CISO;
-    CISO((ciso)):::gear --> N4;
-    N4((biasCorr)):::gear --> VBM;
+    A[T2w]:::input --> FW;
+    FW[FW] --> D2N;
+    D2N((dcm2niix)):::gear --> CISO;
+    CISO((recon)):::gear --> N4;
+    N4((biasCorr)):::gear --> BET;
+    BET((HD-BET)):::gear --> VBM;
     VBM[Analysis]:::container;
     
     classDef container fill:#57d,color:#fff
