@@ -6,6 +6,7 @@ import logging, subprocess, sys
 from flywheel_gear_toolkit import GearToolkitContext
 from app.gatherDemographics import get_demo
 from app.ants_vbm import vbm
+# from app.test.TEST_ants_vbm import vbm
 from app.parser import parse_config
 
 # The gear is split up into 2 main components. The run.py file which is executed
