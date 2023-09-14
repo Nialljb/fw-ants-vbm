@@ -40,3 +40,11 @@ Trying to include ROIs estimations (Should be moved to seperate module - to allo
 - inlcuded shell script to change dimensions of masks in an atlas folder to match the individual
 - volume estimation using the registered masks in main VMB script
 - subprocess.run may be better than os.system and try/catch statements should run as expected 
+
+14/09/2023
+"version": "0.2.6"
+
+MUCH trial and error debugging..
+- Should be a working beta version (will save ALL outputs - will remove all ROI masks after sanity checking)
+- Cortical masks included
+- Subcortical are thresholded (0.7), Thalamus & Caudated still too liberal, may need to threshold seperatly. 

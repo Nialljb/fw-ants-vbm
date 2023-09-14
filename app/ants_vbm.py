@@ -145,6 +145,13 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
         print("Error in masking tissue segmentations")
         sys.exit(1)
 
+
+    # 5: Threshold the tissue segmentations to create eroded binary masks
+    GM_mask = (OUTPUT_DIR + "/GM_mask.nii.gz")
+    WM_mask = (OUTPUT_DIR + "/WM_mask.nii.gz")
+    subprocess.run(["fslmaths " + maskedGMSegmentation + " -thr 0.3 -bin " + GM_mask], shell=True, check=True)
+    subprocess.run(["fslmaths " + maskedWMSegmentation + " -thr 0.3 -bin " + WM_mask], shell=True, check=True)
+
     # 6: from the warp field, calculate the various jacobian matrices
     print("Calculating jacobian matrices...")
     logJacobian = (OUTPUT_DIR + "/logJacobian.nii.gz")
@@ -216,17 +223,25 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
 
-    # Mask registration
-    # try:
+    # 9: Calculate warps from MNI to BCP
     registration.MNI2BCP(studyBrainReference, OUTPUT_DIR)
 
+    # 10: ROI registration
     if Jolly == True:
-        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
+        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, WM_mask, df)
 
     if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
-    # except:
-    #     print("Error in ROI calculations")
+        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+ 
+    if HarvardOxford_Cortical == True:
+        df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+
+    if Glasser == True:
+        print("Sorry, Glasser 2016 atlas is not yet implemented")
+    
+    if ICBM81 == True:
+        print("Sorry, ICBM 81 atlas is not yet implemented")
+
      
     # -----------------  Save the volumes  -----------------  #
 
