@@ -118,26 +118,54 @@ def get_demo():
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
-                    # Get DOB from dicom header
-                    try:
-                        dob = file_obj.info['PatientBirthDate']
-                    except:
-                        print("No DOB in dicom header & no age found")
-                        # Alternative workflow to get AGE from subject container??
-                        continue 
-                    # Get series date from dicom header
-                    seriesDate = file_obj.info['SeriesDate']
-                    # print("seriesDate: ", seriesDate)
-                    # Calculate age at scan
-                    age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
-                    # Find the target template based on the session label
-                    
-                    age = age.days
-                    print("age: ", age)
-                    # Make sure age is positive
-                    if age < 0:
-                        age = age * -1
 
+                    # # Get DOB from dicom header
+                    # try:
+                    #     dob = file_obj.info['PatientBirthDate']
+                    # except:
+                    #     print("No DOB in dicom header & no age found")
+                    #     # Alternative workflow to get AGE from subject container??
+                    #     continue 
+                    # # Get series date from dicom header
+                    # seriesDate = file_obj.info['SeriesDate']
+                    # # print("seriesDate: ", seriesDate)
+                    # # Calculate age at scan
+                    # age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
+                    # # Find the target template based on the session label
+                    
+                    # age = age.days
+                    # print("age: ", age)
+
+                    if 'PatientBirthDate' in file_obj.info:
+                        # Get dates from dicom header
+                        dob = file_obj.info['PatientBirthDate']
+                        seriesDate = file_obj.info['SeriesDate']
+                        # Calculate age at scan
+                        age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
+                        age = age.days
+                    elif session.age != None: 
+                        # 
+                        print("Checking session infomation label...")
+                        # print("session.age: ", session.age) 
+                        age = int(session.age / 365 / 24 / 60 / 60) # This is in seconds
+                    elif 'PatientAge' in file_obj.info:
+                        print("No DOB in dicom header or age in session info! Trying PatientAge from dicom...")
+                        age = file_obj.info['PatientAge']
+                        # Need to drop the 'D' from the age and convert to int
+                        age = re.sub('\D', '', age)
+                        age = int(age)
+                    else:
+                        print("No age at scan in session info label! Ask PI...")
+                        age = 0
+
+                    if age == 0:
+                        print("No age at scan - skipping")
+                        break
+                    # Make sure age is positive
+                    elif age < 0:
+                        age = age * -1
+                    print("age: ", age)
+                    
                     # Find the target template based on the age at scan
                     if age < 15:
                         target_template = '0Month'
@@ -158,7 +186,7 @@ def get_demo():
                     elif age < 800:
                         target_template = '24Month'
                     else:
-                        print("age is > than 23 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
+                        print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
                     
                     print("target_template: ", target_template)
 
