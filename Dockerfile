@@ -11,14 +11,7 @@ COPY ./ $FLYWHEEL/
 # Dev dpendencies
 RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common=0.96.20.2-2 && \
     apt-get clean && \
-    # pip3 install flywheel-gear-toolkit && \
-    # pip3 install flywheel-sdk && \
-    # pip3 install importlib_metadata && \
-    # pip3 install pandas && \
-    # apt-get update && apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Set up FSL
 
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \

@@ -51,3 +51,6 @@ MUCH trial and error debugging..
 
 "version": "0.2.7"
 - More ways of catching age
+
+"version": "0.2.8"
+- cleaning up as a potential working version for initial release
