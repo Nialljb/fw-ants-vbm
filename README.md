@@ -116,7 +116,7 @@ A picture and description of the workflow
     CISO((recon)):::gear --> N4;
     N4((biasCorr)):::gear --> BET;
     BET((HD-BET)):::gear --> VBM;
-    VBM[Analysis]:::container;
+    VBM[Morphometry]:::container;
     
     classDef container fill:#57d,color:#fff
     classDef input fill:#7a9,color:#fff
