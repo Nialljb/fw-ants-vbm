@@ -103,7 +103,8 @@ def get_demo():
     for acq in session_container.acquisitions.iter():
         # print(acq.label)
         acq = acq.reload()
-        if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label and 'NOT FOR DIAGNOSTIC USE' not in acq.label: # restrict to T2 acquisitions
+        if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label: # restrict to T2 acquisitions
+            # PRIMES only has these scan names: and 'NOT FOR DIAGNOSTIC USE' not in acq.label
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
