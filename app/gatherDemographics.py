@@ -107,6 +107,7 @@ def get_demo():
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
+                    
                     if 'PatientBirthDate' in file_obj.info:
                         # Get dates from dicom header
                         dob = file_obj.info['PatientBirthDate']

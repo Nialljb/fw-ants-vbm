@@ -230,12 +230,16 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     if ICBM81 == True:
         print("Sorry, ICBM 81 atlas is not yet implemented")
 
-    #  tmp save ROIs to sanity check registration
-    subprocess.run(["cp " + WORK + "/Bodyofcorpuscallosum_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
-    subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
-    subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/"], shell=True, check=True)	
-
     # -----------------  Save the volumes  -----------------  #
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
     print("Volumes saved to: ", OUTPUT_DIR + '/volumes.csv')
+
+
+    #  tmp save ROIs to sanity check registration
+    try:
+        subprocess.run(["cp " + WORK + "/Bodyofcorpuscallosum_Aligned.nii.gz " + OUTPUT_DIR + "/Bodyofcorpuscallosum_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
+    except:
+        print("Error in copying ROIs")
