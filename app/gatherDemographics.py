@@ -158,6 +158,13 @@ def get_demo():
                         target_template = '18Month'
                     elif age < 800:
                         target_template = '24Month'
+                    elif age < 1005:
+                        target_template = '44Month' 
+                    elif age < 2000:
+                        target_template = '60Month' 
+                    elif age >= 2000:
+                        target_template = 'adult' 
+                        print("age is older than 5 years - defaulting to adult template")
                     else:
                         print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
                     
