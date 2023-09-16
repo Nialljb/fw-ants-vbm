@@ -52,7 +52,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # Individual input variables
     individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
-    studyBrainMask = (WORK + "/isotropicReconstruction_corrected_hdbet_mask.nii.gz")     
+    initialBrainMask = (WORK + "/isotropicReconstruction_corrected_hdbet_mask.nii.gz")     
 
     # set template priors
     targetDir = Path(WORK) # To rglob
@@ -110,11 +110,14 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
     individualGraySegmentation = (WORK + "/initialGM.nii.gz")
     individualCSFSegmentation = (WORK + "/initialCSF.nii.gz")
+    studyBrainMask = (WORK + "/alignedBrainMask.nii.gz")
 
     try:
         os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
         os.system(antsImageAlign + " " + grayPrior + " " + individualGraySegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
         os.system(antsImageAlign + " " + csfPrior + " " + individualCSFSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+        os.system(antsImageAlign + " " + initialBrainMask + " " + studyBrainMask + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+
     except:
         print("Error in aligning tissue segmentations to template")
         sys.exit(1)
@@ -234,7 +237,6 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
     print("Volumes saved to: ", OUTPUT_DIR + '/volumes.csv')
-
 
     #  tmp save ROIs to sanity check registration
     try:

@@ -19,8 +19,8 @@ def run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, wm, wm_mask,
                 MNI_AFFINE = (WORK + "/mni2bcp_0GenericAffine.mat")
                 MNIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
                 # Run registration
-                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, check=True)
-                subprocess.run(["fslmaths " + MNIAligned + " -mul " + wm_mask + " " + MNIAligned], shell=True, check=True)	
+                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, capture_output = True)
+                subprocess.run(["fslmaths " + MNIAligned + " -mul " + wm_mask + " " + MNIAligned], shell=True, capture_output = True)	
 
                 # Calculate volume
                 est = float(subprocess.check_output(["fslstats " + wm + " -k " + MNIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
@@ -49,9 +49,9 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm
                 MNIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
 
                 # Run registration (subcortical ROIs require thresholding)
-                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, check=True)
-                subprocess.run(["fslmaths " + MNIAligned + " -thr 0.7 " + MNIAligned], shell=True, check=True)	
-                subprocess.run(["fslmaths " + MNIAligned + " -mul " + gm_mask + " " + MNIAligned], shell=True, check=True)	
+                subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, capture_output = True)
+                subprocess.run(["fslmaths " + MNIAligned + " -thr 0.7 " + MNIAligned], shell=True, capture_output = True)	
+                subprocess.run(["fslmaths " + MNIAligned + " -mul " + gm_mask + " " + MNIAligned], shell=True, capture_output = True)	
             
                 # Calculate volume
                 est = float(subprocess.check_output(["fslstats " + gm + " -k " + MNIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
