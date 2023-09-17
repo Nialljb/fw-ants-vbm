@@ -29,6 +29,7 @@ def main(context: GearToolkitContext) -> None:
     e_code = vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81)
     sys.exit(e_code)
 
+
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover
     # Get access to gear config, inputs, and sdk client if enabled.

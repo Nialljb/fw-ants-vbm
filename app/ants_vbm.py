@@ -27,7 +27,7 @@ import utils.registration as registration
 
 #  -------------------  The main event -------------------  #
 
-def vbm(subject_label, session_label, target_template, input, age, patientSex, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
+def vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
     print("Input: ", input)
     print("subject_label: ", subject_label)
@@ -49,6 +49,7 @@ def vbm(subject_label, session_label, target_template, input, age, patientSex, H
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
+    TEMPLATE = (WORK + "/" + target_template)
 
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
@@ -58,7 +59,7 @@ def vbm(subject_label, session_label, target_template, input, age, patientSex, H
             initialBrainMask = file   
 
     # set template priors
-    targetDir = Path(WORK) # To rglob
+    targetDir = Path(TEMPLATE) # To rglob
     for filepath in targetDir.rglob('BCP-??M-T2.nii.gz'):
         studyBrainReference = str(filepath)
         break
