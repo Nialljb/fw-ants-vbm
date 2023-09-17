@@ -88,7 +88,7 @@ def get_demo():
                     brain_mask = file
                     print("Found ", file.name)
 
-                    download_dir = ('/flywheel/v0/work/')
+                    download_dir = ('/flywheel/v0/input/input/')
                     if not os.path.exists(download_dir):
                         os.mkdir(download_dir)
                     download_path = download_dir + '/' + file.name
@@ -116,7 +116,7 @@ def get_demo():
                         PatientSex = "NA"
                         continue
                     print("PatientSex: ", PatientSex)
-                    
+
                     if 'PatientBirthDate' in file_obj.info:
                         # Get dates from dicom header
                         dob = file_obj.info['PatientBirthDate']

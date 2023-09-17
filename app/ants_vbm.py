@@ -51,8 +51,11 @@ def vbm(subject_label, session_label, target_template, input, age, patientSex, H
     WORK = (FLYWHEEL_BASE + "/work")
 
     # Individual input variables
-    individualMaskedBrain = (INPUT_DIR + "/isotropicReconstruction_corrected_hdbet.nii.gz")
-    initialBrainMask = (WORK + "/isotropicReconstruction_corrected_hdbet_mask.nii.gz")     
+    for file in os.listdir(INPUT_DIR):
+        if file.find("hdbet.nii.gz")>=0:                            
+            individualMaskedBrain = file
+        elif file.find("hdbet_mask.nii.gz")>=0:
+            initialBrainMask = file   
 
     # set template priors
     targetDir = Path(WORK) # To rglob
