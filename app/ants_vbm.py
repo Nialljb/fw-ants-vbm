@@ -27,7 +27,7 @@ import utils.registration as registration
 
 #  -------------------  The main event -------------------  #
 
-def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
+def vbm(subject_label, session_label, target_template, input, age, patientSex, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
     print("Input: ", input)
     print("subject_label: ", subject_label)
@@ -136,7 +136,6 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
         print("Error in masking tissue segmentations")
         sys.exit(1)
 
-
     # 5: Threshold the tissue segmentations to create eroded binary masks
     GM_mask = (WORK + "/GM_mask.nii.gz")
     WM_mask = (WORK + "/WM_mask.nii.gz")
@@ -208,7 +207,7 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     print("CSF volume: ", csf_vol)
 
     # assign values to lists. 
-    data = [{'subject': subject_label, 'session': session_label, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
+    data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
 

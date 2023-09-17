@@ -109,6 +109,14 @@ def get_demo():
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
                     
+                    dicom_header = fw._fw.get_acquisition_file_info(acq.id, file_obj.name)
+                    try:
+                        PatientSex = dicom_header.info["PatientSex"]
+                    except:
+                        PatientSex = "NA"
+                        continue
+                    print("PatientSex: ", PatientSex)
+                    
                     if 'PatientBirthDate' in file_obj.info:
                         # Get dates from dicom header
                         dob = file_obj.info['PatientBirthDate']
@@ -139,39 +147,40 @@ def get_demo():
                         age = age * -1
                     print("age: ", age)
                     
-                    # Find the target template based on the age at scan
-                    if age < 15:
-                        target_template = '0Month'
-                    if age < 45:
-                        target_template = '1Month'
-                    elif age < 75:
-                        target_template = '2Month'
-                    elif age < 105:
-                        target_template = '3Month' 
-                    elif age < 200:
-                        target_template = '6Month'
-                    elif age < 300:
-                        target_template = '9Month'
-                    elif age < 400:
-                        target_template = '12Month'
-                    elif age < 600:
-                        target_template = '18Month'
-                    elif age < 800:
-                        target_template = '24Month'
-                    elif age < 1005:
-                        target_template = '44Month' 
-                    elif age < 2000:
-                        target_template = '60Month' 
-                    elif age >= 2000:
-                        target_template = 'adult' 
-                        print("age is older than 5 years - defaulting to adult template")
-                    else:
-                        print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
+                    # # Find the target template based on the age at scan
+                    # if age < 15:
+                    #     target_template = '0Month'
+                    # if age < 45:
+                    #     target_template = '1Month'
+                    # elif age < 75:
+                    #     target_template = '2Month'
+                    # elif age < 105:
+                    #     target_template = '3Month' 
+                    # elif age < 200:
+                    #     target_template = '6Month'
+                    # elif age < 300:
+                    #     target_template = '9Month'
+                    # elif age < 400:
+                    #     target_template = '12Month'
+                    # elif age < 600:
+                    #     target_template = '18Month'
+                    # elif age < 800:
+                    #     target_template = '24Month'
+                    # elif age < 1005:
+                    #     target_template = '44Month' 
+                    # elif age < 2000:
+                    #     target_template = '60Month' 
+                    # elif age >= 2000:
+                    #     target_template = 'adult' 
+                    #     print("age is older than 5 years - defaulting to adult template")
+                    # else:
+                    #     print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
                     
+                    target_template = '12Month'
                     print("target_template: ", target_template)
 
                     Template = '/flywheel/v0/app/templates/'+ target_template
                     print(Template)
                     os.system('cp -r '+Template+' /flywheel/v0/work/')
 
-    return subject_label, session_label, target_template
+    return subject_label, session_label, target_template, age, PatientSex
