@@ -176,11 +176,11 @@ def get_demo():
                     # else:
                     #     print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
                     
-                    target_template = '12Month'
-                    print("target_template: ", target_template)
+    target_template = '12Month'
+    print("target_template: ", target_template)
 
-                    Template = '/flywheel/v0/app/templates/'+ target_template
-                    print(Template)
-                    os.system('cp -r '+Template+' /flywheel/v0/work/')
+    Template = '/flywheel/v0/app/templates/'+ target_template
+    print(Template)
+    os.system('cp -r '+Template+' /flywheel/v0/work/')
 
     return subject_label, session_label, target_template, age, PatientSex
