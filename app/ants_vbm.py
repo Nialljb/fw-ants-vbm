@@ -56,7 +56,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         if file.find("hdbet.nii.gz")>=0:                            
             individualMaskedBrain = (INPUT_DIR + file)
         elif file.find("hdbet_mask.nii.gz")>=0:
-            initialBrainMask = (WORK + file)   
+            initialBrainMask = (INPUT_DIR + file)   
     print("Initial brain mask is: ", initialBrainMask)
 
     # set template priors

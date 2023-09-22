@@ -65,7 +65,7 @@ def get_demo():
                     brain_mask = file
                     print("Found ", file.name)
 
-                    download_dir = ('/flywheel/v0/work/')
+                    download_dir = ('/flywheel/v0/input/input/')
                     if not os.path.exists(download_dir):
                         os.mkdir(download_dir)
                     download_path = download_dir + '/' + file.name
