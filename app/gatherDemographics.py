@@ -4,6 +4,7 @@ import json
 import pandas as pd
 from datetime import datetime
 import re
+import subprocess
 
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
@@ -18,7 +19,7 @@ def get_demo():
     api_key = (config['inputs']['api-key']['key'])
     fw = flywheel.Client(api_key=api_key)
     gear = 'hdbet'
-
+    
     # Get the input file id
     input_file_id = (config['inputs']['input']['hierarchy']['id'])
     print("input_file_id is : ", input_file_id)
@@ -103,7 +104,7 @@ def get_demo():
     for acq in session_container.acquisitions.iter():
         # print(acq.label)
         acq = acq.reload()
-        if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label: # restrict to T2 acquisitions
+        if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label or 't1_mprage_sag_p2_iso' in acq.label: 
             # PRIMES only has these scan names: and 'NOT FOR DIAGNOSTIC USE' not in acq.label
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
@@ -117,10 +118,10 @@ def get_demo():
                         continue
                     print("PatientSex: ", PatientSex)
 
-                    if 'PatientBirthDate' in file_obj.info:
+                    if 'PatientBirthDate' in dicom_header.info:
                         # Get dates from dicom header
-                        dob = file_obj.info['PatientBirthDate']
-                        seriesDate = file_obj.info['SeriesDate']
+                        dob = dicom_header.info['PatientBirthDate']
+                        seriesDate = dicom_header.info['SeriesDate']
                         # Calculate age at scan
                         age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
                         age = age.days
@@ -129,9 +130,9 @@ def get_demo():
                         print("Checking session infomation label...")
                         # print("session.age: ", session.age) 
                         age = int(session.age / 365 / 24 / 60 / 60) # This is in seconds
-                    elif 'PatientAge' in file_obj.info:
+                    elif 'PatientAge' in dicom_header.info:
                         print("No DOB in dicom header or age in session info! Trying PatientAge from dicom...")
-                        age = file_obj.info['PatientAge']
+                        age = dicom_header.info['PatientAge']
                         # Need to drop the 'D' from the age and convert to int
                         age = re.sub('\D', '', age)
                         age = int(age)
@@ -146,41 +147,13 @@ def get_demo():
                     elif age < 0:
                         age = age * -1
                     print("age: ", age)
-                    
-                    # # Find the target template based on the age at scan
-                    # if age < 15:
-                    #     target_template = '0Month'
-                    # if age < 45:
-                    #     target_template = '1Month'
-                    # elif age < 75:
-                    #     target_template = '2Month'
-                    # elif age < 105:
-                    #     target_template = '3Month' 
-                    # elif age < 200:
-                    #     target_template = '6Month'
-                    # elif age < 300:
-                    #     target_template = '9Month'
-                    # elif age < 400:
-                    #     target_template = '12Month'
-                    # elif age < 600:
-                    #     target_template = '18Month'
-                    # elif age < 800:
-                    #     target_template = '24Month'
-                    # elif age < 1005:
-                    #     target_template = '44Month' 
-                    # elif age < 2000:
-                    #     target_template = '60Month' 
-                    # elif age >= 2000:
-                    #     target_template = 'adult' 
-                    #     print("age is older than 5 years - defaulting to adult template")
-                    # else:
-                    #     print("age is > than 24 months! Add additional templates to the gear or default to adult??. Will need tissue segmentations for additional templates.")
-                    
+        
     target_template = '12Month'
     print("target_template: ", target_template)
 
     Template = '/flywheel/v0/app/templates/'+ target_template
     print(Template)
-    os.system('cp -r '+Template+' /flywheel/v0/work/')
-
+    # os.system('cp -r '+Template+' /flywheel/v0/work/')
+    subprocess.run(['cp -r '+Template+' /flywheel/v0/work/'], shell=True, check=True)
+    print("Demographics: ", subject_label, session_label, target_template, age, PatientSex)
     return subject_label, session_label, target_template, age, PatientSex

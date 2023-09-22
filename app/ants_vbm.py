@@ -49,31 +49,39 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
-    TEMPLATE = (WORK + "/" + target_template)
+    TEMPLATE = (WORK + "/" + target_template + "/")
 
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
         if file.find("hdbet.nii.gz")>=0:                            
-            individualMaskedBrain = file
+            individualMaskedBrain = (INPUT_DIR + file)
         elif file.find("hdbet_mask.nii.gz")>=0:
-            initialBrainMask = file   
+            initialBrainMask = (INPUT_DIR + file)   
 
     # set template priors
-    targetDir = Path(TEMPLATE) # To rglob
-    for filepath in targetDir.rglob('BCP-??M-T2.nii.gz'):
+    templatePath = Path(TEMPLATE) # To rglob
+    print("templatePath is: ", templatePath)
+    for filepath in templatePath.rglob('BCP-??M-T2.nii.gz'):
         studyBrainReference = str(filepath)
+        print("studyBrainReference is: ", studyBrainReference)
         break
-    for filepath in targetDir.rglob('BCP-??M-GM.nii.gz'):
+    for filepath in templatePath.rglob('BCP-??M-GM.nii.gz'):
         grayPrior = str(filepath)
+        print("grayPrior is: ", grayPrior)
         break
-    for filepath in targetDir.rglob('BCP-??M-WM.nii.gz'):
+    for filepath in templatePath.rglob('BCP-??M-WM.nii.gz'):
         whitePrior = str(filepath)
+        print("whitePrior is: ", whitePrior)
         break
-    for filepath in targetDir.rglob('BCP-??M-CSF.nii.gz'):
+    for filepath in templatePath.rglob('BCP-??M-CSF.nii.gz'):
         csfPrior = str(filepath)
+        print("csfPrior is: ", csfPrior)
         break
-    print("ref is: ", studyBrainReference)
     
+    print("ref is: ", studyBrainReference)
+    # studyBrainReference = '/flywheel/v0/work/12Month/BCP-12M-T2.nii.gz'
+    # print("ref is: ", studyBrainReference)
+
     #  Set up the software
     softwareHome = "/opt/ants/bin/"
     antsWarp = softwareHome + "ANTS 3 -G -m CC["

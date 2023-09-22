@@ -54,3 +54,11 @@ MUCH trial and error debugging..
 
 "version": "0.2.8"
 - cleaning up as a potential working version for initial release
+
+22/09/2023
+"version": "0.4.2"
+- Hardcoded template prior to be 12 Months followed by:
+- Many iterations trying to solve
+> UnboundLocalError: local variable 'studyBrainReference' referenced before assignment
+
+in Flywheel job log, while working ok when run locally. 
