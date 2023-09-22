@@ -62,3 +62,7 @@ MUCH trial and error debugging..
 > UnboundLocalError: local variable 'studyBrainReference' referenced before assignment
 
 in Flywheel job log, while working ok when run locally. 
+
+"version": "0.4.2"
+- Added ICBM-81 Atlas
+- Unbuffered output

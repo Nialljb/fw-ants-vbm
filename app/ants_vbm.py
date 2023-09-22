@@ -57,6 +57,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
             individualMaskedBrain = (INPUT_DIR + file)
         elif file.find("hdbet_mask.nii.gz")>=0:
             initialBrainMask = (INPUT_DIR + file)   
+    print("Initial brain mask is: ", initialBrainMask)
 
     # set template priors
     templatePath = Path(TEMPLATE) # To rglob
@@ -79,10 +80,10 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         break
     
     print("ref is: ", studyBrainReference)
-    # studyBrainReference = '/flywheel/v0/work/12Month/BCP-12M-T2.nii.gz'
-    # print("ref is: ", studyBrainReference)
 
-    #  Set up the software
+
+    # ---  Set up the software ---  #
+
     softwareHome = "/opt/ants/bin/"
     antsWarp = softwareHome + "ANTS 3 -G -m CC["
     antsImageAlign = softwareHome + "WarpImageMultiTransform 3 "
@@ -128,11 +129,15 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
         os.system(antsImageAlign + " " + grayPrior + " " + individualGraySegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
         os.system(antsImageAlign + " " + csfPrior + " " + individualCSFSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
-        os.system(antsImageAlign + " " + initialBrainMask + " " + studyBrainMask + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
-
     except:
         print("Error in aligning tissue segmentations to template")
         sys.exit(1)
+
+    try:
+        subprocess.run([antsImageAlign + " " + initialBrainMask + " " + studyBrainMask + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
+    except:
+        print("Error in aligning original brain mask to template")
+        sys.exit(1) # exit if error
 
     # 4: Use output from hd-bet to mask the tissue segmentations
     print("Masking tissue segmentations...")
@@ -242,7 +247,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Sorry, Glasser 2016 atlas is not yet implemented")
     
     if ICBM81 == True:
-        print("Sorry, ICBM 81 atlas is not yet implemented")
+        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+
 
     # -----------------  Save the volumes  -----------------  #
 
