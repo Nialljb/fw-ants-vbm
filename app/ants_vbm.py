@@ -49,8 +49,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
-    TEMPLATE = (WORK + "/" + target_template + "/")
-
+    TEMPLATE = ('/flywheel/v0/app/templates/' + target_template + "/")
+ 
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
         if file.find("hdbet.nii.gz")>=0:                            

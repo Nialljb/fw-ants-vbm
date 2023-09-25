@@ -66,3 +66,8 @@ in Flywheel job log, while working ok when run locally.
 "version": "0.4.2"
 - Added ICBM-81 Atlas
 - Unbuffered output
+
+"version": "0.4.8"
+Rolled back version due to github error ("version": "0.4.7 to 0.4.5)
+- Not sure all changes were caught 
+- Main update was to catch missing sex in dicom header

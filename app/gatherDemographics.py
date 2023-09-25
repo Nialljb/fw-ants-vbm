@@ -110,11 +110,12 @@ def get_demo():
                 if file_obj['type'] == 'dicom':
                     
                     dicom_header = fw._fw.get_acquisition_file_info(acq.id, file_obj.name)
-                    try:
+
+                    if 'PatientSex' in dicom_header.info:
                         PatientSex = dicom_header.info["PatientSex"]
-                    except:
+                    else:
                         PatientSex = "NA"
-                        continue
+                
                     print("PatientSex: ", PatientSex)
 
                     if 'PatientBirthDate' in dicom_header.info:
