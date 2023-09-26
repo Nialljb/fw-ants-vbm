@@ -78,7 +78,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         csfPrior = str(filepath)
         print("csfPrior is: ", csfPrior)
         break
-    
+
+    brainMaskPrior = (TEMPLATE + 'BCP-12M-T1_bet.nii.gz')
+    print("brainMaskPrior is: ", brainMaskPrior)
     print("ref is: ", studyBrainReference)
 
 
