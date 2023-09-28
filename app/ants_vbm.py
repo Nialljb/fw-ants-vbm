@@ -79,8 +79,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("csfPrior is: ", csfPrior)
         break
 
-    brainMaskPrior = (TEMPLATE + 'BCP-12M-T1_bet.nii.gz')
-    print("brainMaskPrior is: ", brainMaskPrior)
+    # brainMaskPrior = (TEMPLATE + 'BCP-12M-T1_bet.nii.gz')
+    # print("brainMaskPrior is: ", brainMaskPrior)
     print("ref is: ", studyBrainReference)
 
 
@@ -93,20 +93,25 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     # -----------------  Start processing  -----------------  #
 
+    # studyBrain = INPUT_DIR + "/isotropicReconstruction_corrected.nii.gz"
+    # initialBET = (WORK + "/initialBrainMaskedImage")
+    # subprocess.run(["bet2 " + studyBrain + " " + initialBET + " -m "], shell=True, check=True)
+    # initialBrainMaskedImage = (WORK + "/initialBrainMaskedImage.nii.gz")
+
     # 1: Calculate the warp from the individual to the template brain
     # save output as studyBrainReferenceAligned
     print("Calculating warp from individual to template brain...")
-    studyAlignedBrainImage = (WORK + "/isotropicReconstruction_corrected_masked_aligned.nii.gz")
+    studyAlignedBrainImage = (WORK + "/initialBrainMaskedImage_aligned.nii.gz")
     try:
-        os.system(antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
+        os.system(antsWarp + studyBrainReference + ", " + initialBrainMaskedImage + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
     except:
         print("Error in calculating warp")
         sys.exit(1)
 
     # Define variables from warp calculation in step 1
-    brainWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedWarp.nii.gz")
-    brainAffineField = (WORK + "/isotropicReconstruction_corrected_masked_alignedAffine.txt")
-    brainInverseWarpField = (WORK + "/isotropicReconstruction_corrected_masked_alignedInverseWarp.nii.gz")
+    brainWarpField = (WORK + "/initialBrainMaskedImage_alignedWarp.nii.gz")
+    brainAffineField = (WORK + "/initialBrainMaskedImage_alignedAffine.txt")
+    brainInverseWarpField = (WORK + "/initialBrainMaskedImage_alignedInverseWarp.nii.gz")
 
     # 2: Perform the warp on the individual brain image to align it to the template
     print("Aligning individual brain to template...")
@@ -259,7 +264,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     #  tmp save ROIs to sanity check registration
     try:
-        subprocess.run(["cp " + WORK + "/Bodyofcorpuscallosum_Aligned.nii.gz " + OUTPUT_DIR + "/Bodyofcorpuscallosum_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
         subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
         subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
     except:

@@ -91,6 +91,8 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm
                 print(regionName, ":", volume, "mm3")
     return df
 
+#  individualMaskedBrain  brainAffineField  brainInverseWarpField
+
 def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm_mask, df):
     print("Aligning grey matter cortical ROIs to subject...")
     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/gm/cortical")
@@ -108,10 +110,12 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm_ma
                 MNI_WARP = (WORK + "/mni2bcp_1Warp.nii.gz")
                 MNI_AFFINE = (WORK + "/mni2bcp_0GenericAffine.mat")
                 MNIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
-
+                individualAligned = (WORK + "/" + regionName + "_individualAligned.nii.gz")
                 # Run registration
                 # subprocess.run(["WarpImageMultiTransform 3 " + f + " " + MNIAligned + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField +" --use-BSpline"], shell=True, check=True)	
                 subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, check=True)
+                subprocess.run(['WarpImageMultiTransform 3 ' + MNIAligned + " " + individualAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+
                 subprocess.run(["fslmaths " + MNIAligned + " -mul " + gm_mask + " " + MNIAligned], shell=True, check=True)	
             
                 # Calculate volume

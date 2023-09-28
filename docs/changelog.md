@@ -71,3 +71,11 @@ in Flywheel job log, while working ok when run locally.
 Rolled back version due to github error ("version": "0.4.7 to 0.4.5)
 - Not sure all changes were caught 
 - Main update was to catch missing sex in dicom header
+
+28/09/2023
+
+- Image and mask dimensions error is being thrown for some data as the reconstruction has been changed so that it is 1.5mm isotropic. 
+- Masks need to be registered to this image not the 0.8mm template. 
+- Lots of changes had been made trying to debug which need to be cleaned up. 
+
+Improved masks have been added for cortical and subcortical ROIs
