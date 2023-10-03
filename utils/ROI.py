@@ -114,8 +114,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gm, gm_ma
                 # Run registration
                 # subprocess.run(["WarpImageMultiTransform 3 " + f + " " + MNIAligned + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField +" --use-BSpline"], shell=True, check=True)	
                 subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + studyBrainReference + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + MNIAligned], shell=True, check=True)
-                subprocess.run(['WarpImageMultiTransform 3 ' + MNIAligned + " " + individualAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
-
+                # subprocess.run(['WarpImageMultiTransform 3 ' + MNIAligned + " " + individualAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, check=True)
                 subprocess.run(["fslmaths " + MNIAligned + " -mul " + gm_mask + " " + MNIAligned], shell=True, check=True)	
             
                 # Calculate volume

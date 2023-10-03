@@ -53,9 +53,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
  
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
-        if file.find("hdbet.nii.gz")>=0:                            
+        if file.find("isotropicReconstruction_corrected_brain.nii.gz")>=0:                            
             individualMaskedBrain = (INPUT_DIR + file)
-        elif file.find("hdbet_mask.nii.gz")>=0:
+        elif file.find("isotropicReconstruction_corrected_sbet_mask.nii.gz")>=0:
             initialBrainMask = (INPUT_DIR + file)   
     print("Initial brain mask is: ", initialBrainMask)
 
@@ -78,11 +78,19 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         csfPrior = str(filepath)
         print("csfPrior is: ", csfPrior)
         break
-
-    # brainMaskPrior = (TEMPLATE + 'BCP-12M-T1_bet.nii.gz')
-    # print("brainMaskPrior is: ", brainMaskPrior)
     print("ref is: ", studyBrainReference)
 
+
+    # # Input image is 1.5mm isotropic   
+    # Then registering to higher resolution template. The atlas is also being registered to this space. 
+    # 
+    # so resample the template priors to match and theb 
+    # resampledTemplate, resampledGray, resampledWhite, resampledCSF = registration.resamplingTemplate(studyBrainReference, grayPrior, whitePrior, csfPrior, WORK)
+    # print("Resampled template is: ", resampledTemplate)
+    # print("Resampled gray is: ", resampledGray)
+    # print("Resampled white is: ", resampledWhite)
+    # print("Resampled CSF is: ", resampledCSF)
+    
 
     # ---  Set up the software ---  #
 
@@ -93,17 +101,12 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     # -----------------  Start processing  -----------------  #
 
-    # studyBrain = INPUT_DIR + "/isotropicReconstruction_corrected.nii.gz"
-    # initialBET = (WORK + "/initialBrainMaskedImage")
-    # subprocess.run(["bet2 " + studyBrain + " " + initialBET + " -m "], shell=True, check=True)
-    # initialBrainMaskedImage = (WORK + "/initialBrainMaskedImage.nii.gz")
-
     # 1: Calculate the warp from the individual to the template brain
     # save output as studyBrainReferenceAligned
     print("Calculating warp from individual to template brain...")
     studyAlignedBrainImage = (WORK + "/initialBrainMaskedImage_aligned.nii.gz")
     try:
-        os.system(antsWarp + studyBrainReference + ", " + initialBrainMaskedImage + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
+        os.system(antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
     except:
         print("Error in calculating warp")
         sys.exit(1)
@@ -236,7 +239,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     df = pd.DataFrame(data)
 
     # -----------------  Calculate the volumes of the ROIs  -----------------  #
-
+ 
     # 9: Calculate warps from MNI to BCP
     registration.MNI2BCP(studyBrainReference, WORK)
 

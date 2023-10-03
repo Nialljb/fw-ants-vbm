@@ -79,3 +79,11 @@ Rolled back version due to github error ("version": "0.4.7 to 0.4.5)
 - Lots of changes had been made trying to debug which need to be cleaned up. 
 
 Improved masks have been added for cortical and subcortical ROIs
+
+03/10/2023
+"version": "0.4.9"
+
+- Mask error may have been due to HD-BET ruining some brains
+- Have implemented simple BET
+- Function included but not run to resample templates here to 1.5mm
+- Current implementation will take the reconstructed brain extracted input, register it to BCP template, it will also take MNI atlas masks and register to same template. These should all be in the same space to run estimates. 

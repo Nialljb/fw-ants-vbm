@@ -18,7 +18,7 @@ def get_demo():
     # Read API key in config file
     api_key = (config['inputs']['api-key']['key'])
     fw = flywheel.Client(api_key=api_key)
-    gear = 'hdbet'
+    gear = 'sbet'
     
     # Get the input file id
     input_file_id = (config['inputs']['input']['hierarchy']['id'])
@@ -61,7 +61,7 @@ def get_demo():
             # print(status)
             
             for file in matches[0].files:                
-                if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
+                if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
                     brain_mask = file
                     print("Found ", file.name)
 
@@ -85,7 +85,7 @@ def get_demo():
 
             for file in last_run_analysis.files:
                 # print(file)                
-                if file.name == 'isotropicReconstruction_corrected_hdbet_mask.nii.gz':
+                if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
                     brain_mask = file
                     print("Found ", file.name)
 
