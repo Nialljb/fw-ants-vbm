@@ -80,7 +80,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualM
                 try:
                     # Run registration (subcortical ROIs require thresholding)
                     subprocess.run([antsImageAlign + " " + f + " " + ROIAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
-                    subprocess.run(["fslmaths " + ROIAligned + " -thr 0.7 " + ROIAligned], shell=True, capture_output = True)	
+                    # subprocess.run(["fslmaths " + ROIAligned + " -thr 0.7 " + ROIAligned], shell=True, capture_output = True)	
                     subprocess.run(["fslmaths " + ROIAligned + " -mul " + gm_mask + " " + ROIAligned], shell=True, check = True)	
                 
                     # Calculate volume
@@ -112,6 +112,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMask
                     ROIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
                     # Run registration
                     subprocess.run([antsImageAlign + " " + f + " " + ROIAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
+                    subprocess.run(["fslmaths " + ROIAligned + " -thr 0.7 " + ROIAligned], shell=True, capture_output = True)
                     subprocess.run(["fslmaths " + ROIAligned + " -mul " + gm_mask + " " + ROIAligned], shell=True, check=True)	
                 
                     # Calculate volume
