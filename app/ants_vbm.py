@@ -8,7 +8,7 @@ import utils.registration as registration
 # Pre-run gears:
 # 1. Isotropic reconstruction (CISO)
 # 2. Bias correction (N4)
-# 3. Brain extraction (HD-BET)
+# 3. Brain extraction (SBET)
 
 # Required inputs:
 # Age matched templates should be pulled from the template directory (previous module)
@@ -53,10 +53,12 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
  
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
-        if file.find("isotropicReconstruction_corrected_brain.nii.gz")>=0:                            
+        if file.find("isotropicReconstruction_corrected_sbet_brain.nii.gz")>=0:       
             individualMaskedBrain = (INPUT_DIR + file)
         elif file.find("isotropicReconstruction_corrected_sbet_mask.nii.gz")>=0:
-            initialBrainMask = (INPUT_DIR + file)   
+            initialBrainMask = (INPUT_DIR + file)
+
+    print("Initial brain is: ", individualMaskedBrain)   
     print("Initial brain mask is: ", initialBrainMask)
 
     # set template priors
@@ -80,18 +82,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         break
     print("ref is: ", studyBrainReference)
 
-
-    # # Input image is 1.5mm isotropic   
-    # Then registering to higher resolution template. The atlas is also being registered to this space. 
-    # 
-    # so resample the template priors to match and theb 
-    # resampledTemplate, resampledGray, resampledWhite, resampledCSF = registration.resamplingTemplate(studyBrainReference, grayPrior, whitePrior, csfPrior, WORK)
-    # print("Resampled template is: ", resampledTemplate)
-    # print("Resampled gray is: ", resampledGray)
-    # print("Resampled white is: ", resampledWhite)
-    # print("Resampled CSF is: ", resampledCSF)
     
-
     # ---  Set up the software ---  #
 
     softwareHome = "/opt/ants/bin/"
@@ -106,9 +97,10 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     print("Calculating warp from individual to template brain...")
     studyAlignedBrainImage = (WORK + "/initialBrainMaskedImage_aligned.nii.gz")
     try:
-        os.system(antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000")
+        result = subprocess.run([antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000"], shell=True, check=True) # , text=True , capture_output=True
     except:
-        print("Error in calculating warp")
+        print("*Error in calculating warp*")
+        print(result.stderr)
         sys.exit(1)
 
     # Define variables from warp calculation in step 1
@@ -116,7 +108,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     brainAffineField = (WORK + "/initialBrainMaskedImage_alignedAffine.txt")
     brainInverseWarpField = (WORK + "/initialBrainMaskedImage_alignedInverseWarp.nii.gz")
 
-    # 2: Perform the warp on the individual brain image to align it to the template
+    # --- 2: Perform the warp on the individual brain image to align it to the template ---  #
+
     print("Aligning individual brain to template...")
     alignedBrainImage = (WORK + "/isotropicReconstruction_to_brainReferenceAligned.nii.gz")
     try:
@@ -125,9 +118,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Error in aligning individual brain to template")
         sys.exit(1)
 
-    # 3: now align the individual white matter, gray matter, and csf priors to the individual brain using reverse warp
-    #  Take the template priors and align them to the individual space
+    # --- 3: now align the individual white matter, gray matter, and csf priors to the individual brain using reverse warp ---  #
 
+    #  Take the template priors and align them to the individual space
     # Output variables
     print("Aligning tissue segmentations to template...")
     individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
@@ -149,11 +142,12 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Error in aligning original brain mask to template")
         sys.exit(1) # exit if error
 
-    # 4: Use output from hd-bet to mask the tissue segmentations
+    # --- 4: Use output from bet to mask the tissue segmentations    ---  #  
+
     print("Masking tissue segmentations...")
-    maskedWMSegmentation = (WORK + "/maskedWM.nii.gz")
-    maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
-    maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
+    maskedWMSegmentation = (OUTPUT_DIR + "/maskedWM.nii.gz")
+    maskedGMSegmentation = (OUTPUT_DIR + "/maskedGM.nii.gz")
+    maskedCSFSegmentation = (OUTPUT_DIR + "/maskedCSF.nii.gz")
 
     try:
         os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + " " + maskedWMSegmentation)
@@ -163,13 +157,15 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Error in masking tissue segmentations")
         sys.exit(1)
 
-    # 5: Threshold the tissue segmentations to create eroded binary masks
-    GM_mask = (WORK + "/GM_mask.nii.gz")
-    WM_mask = (WORK + "/WM_mask.nii.gz")
-    subprocess.run(["fslmaths " + maskedGMSegmentation + " -thr 0.3 -bin " + GM_mask], shell=True, check=True)
-    subprocess.run(["fslmaths " + maskedWMSegmentation + " -thr 0.3 -bin " + WM_mask], shell=True, check=True)
+    # --- 5: Threshold the tissue segmentations to create eroded binary masks ---  #
 
-    # 6: from the warp field, calculate the various jacobian matrices
+    GM_mask = (OUTPUT_DIR + "/GM_mask.nii.gz")
+    WM_mask = (OUTPUT_DIR + "/WM_mask.nii.gz")
+    subprocess.run(["fslmaths " + maskedGMSegmentation + " -thr 0.3 -bin " + GM_mask], shell=True, capture_output=True)
+    subprocess.run(["fslmaths " + maskedWMSegmentation + " -thr 0.3 -bin " + WM_mask], shell=True, capture_output=True)
+
+    # --- 6: from the warp field, calculate the various jacobian matrices ---  #
+
     print("Calculating jacobian matrices...")
     logJacobian = (OUTPUT_DIR + "/logJacobian.nii.gz")
     gJacobian = (OUTPUT_DIR + "/gJacobian.nii.gz")
@@ -182,7 +178,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Error in calculating jacobian matrices")
         sys.exit(1)
 
-    # 7: multiply the aligned images by the jacobian matrix to correct for the effect of the warp
+    # --- 7: multiply the aligned images by the jacobian matrix to correct for the effect of the warp ---  #
+
     print("Multiplying aligned images by jacobian matrix...")
     logCorrectedWMSegmentation = (OUTPUT_DIR + "/WM_corr.nii")
     logCorrectedGMSegmentation = (OUTPUT_DIR + "/GM_corr.nii")
@@ -205,10 +202,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     except:
         print("Error in calculating gJacobian")
         sys.exit(1)
-
-    # -----------------  Calculate the volumes  -----------------  #
     
-    # 8: Calculate the volumes of the tissue segmentations
+    # --- 8: Calculate the volumes of the tissue segmentations ---  #
+
     print("Calculating tissue volumes...")
 
     # subprocess with check_output runs a shell command and returns the output as a byte string, which is then decoded into a string (.decode("utf-8")
@@ -216,13 +212,13 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     # Calculate the volumes of the tissue segmentations
     seg_vol_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-    seg_vol_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
-    seg_vol_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+    seg_vol_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
+    seg_vol_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
 
     # Calculate the mean intensities
-    mi_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    mi_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
+    mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
+    mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
 
     # Calculate the volumes by multiplying the mean intensity by the volume
     wm_vol = int(seg_vol_wm * mi_wm)
@@ -238,26 +234,25 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     # Creates DataFrame.  
     df = pd.DataFrame(data)
 
-    # -----------------  Calculate the volumes of the ROIs  -----------------  #
+    # --- 9: Calculate warps from MNI to BCP template ---  #
+    # registration.MNI2BCP(studyBrainReference, WORK)
  
-    # 9: Calculate warps from MNI to BCP
-    registration.MNI2BCP(studyBrainReference, WORK)
+    # --- 10: ROI registration ---  #
 
-    # 10: ROI registration
-    if Jolly == True:
-        df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, WM_mask, df)
+    # if Jolly == True:
+    #     df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation, WM_mask, brainAffineField, brainInverseWarpField, df)
 
     if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df)
  
     if HarvardOxford_Cortical == True:
-        df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+        df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df)
 
     if Glasser == True:
         print("Sorry, Glasser 2016 atlas is not yet implemented")
     
     if ICBM81 == True:
-        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, GM_mask, df)
+        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, studyBrainReference, gCorrectedGMSegmentation, WM_mask, df)
 
 
     # -----------------  Save the volumes  -----------------  #
@@ -267,8 +262,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     #  tmp save ROIs to sanity check registration
     try:
-        subprocess.run(["cp " + WORK + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
-        subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
-        subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + OUTPUT_DIR + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
     except:
         print("Error in copying ROIs")

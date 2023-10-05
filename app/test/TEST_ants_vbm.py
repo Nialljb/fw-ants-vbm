@@ -38,7 +38,7 @@ import utils.registration as registration
 
 
 # setup as a function
-def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
+def vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
     print("Input: ", input)
     print("subject_label: ", subject_label)
@@ -190,27 +190,27 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
     # subprocess with check_output runs a shell command and returns the output as a byte string, which is then decoded into a string (.decode("utf-8")
     # We then convert the string to a float for calculations
 
-    # Calculate the volumes of the tissue segmentations
-    seg_vol_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-    seg_vol_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
-    seg_vol_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+    # # Calculate the volumes of the tissue segmentations
+    # seg_vol_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
+    # seg_vol_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
+    # seg_vol_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -V | awk '{print $1}' "],shell=True).decode("utf-8"))
 
-    # Calculate the mean intensities
-    mi_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
-    mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    # # Calculate the mean intensities
+    # mi_wm = float(subprocess.check_output(["fslstats " + gCorrectedWMSegmentation + " -k " + maskedWMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    # mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
+    # mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "],shell=True).decode("utf-8"))
 
-    # Calculate the volumes by multiplying the mean intensity by the volume
-    wm_vol = int(seg_vol_wm * mi_wm)
-    gm_vol = int(seg_vol_gm * mi_gm)
-    csf_vol = int(seg_vol_csf * mi_csf)
+    # # Calculate the volumes by multiplying the mean intensity by the volume
+    # wm_vol = int(seg_vol_wm * mi_wm)
+    # gm_vol = int(seg_vol_gm * mi_gm)
+    # csf_vol = int(seg_vol_csf * mi_csf)
 
-    print("WM volume: ", wm_vol)
-    print("GM volume: ", gm_vol)
-    print("CSF volume: ", csf_vol)
+    # print("WM volume: ", wm_vol)
+    # print("GM volume: ", gm_vol)
+    # print("CSF volume: ", csf_vol)
 
     # assign values to lists. 
-    data = [{'subject': subject_label, 'session': session_label, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
+    data = [{'subject': subject_label, 'session': session_label}]  # 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol
     # Creates DataFrame.  
     df = pd.DataFrame(data)
 
@@ -218,13 +218,20 @@ def vbm(subject_label, session_label, target_template, input, HarvardOxford_Cort
 
     # Mask registration
     # try:
-    registration.MNI2BCP(studyBrainReference, OUTPUT_DIR)
+    # registration.MNI2BCP(studyBrainReference, OUTPUT_DIR)
 
     if Jolly == True:
         df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedWMSegmentation, maskedWMSegmentation, df)
 
-    if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+    # if HarvardOxford_Subcortical == True:
+    #     df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+
+    # if HarvardOxford_Cortical == True:
+    #     df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedGMSegmentation, df)
+
+    if ICBM81 == True:
+        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, studyBrainReference, gCorrectedGMSegmentation, maskedWMSegmentation, df)
+
     # except:
     #     print("Error in ROI calculations")
      

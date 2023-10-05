@@ -87,3 +87,10 @@ Improved masks have been added for cortical and subcortical ROIs
 - Have implemented simple BET
 - Function included but not run to resample templates here to 1.5mm
 - Current implementation will take the reconstructed brain extracted input, register it to BCP template, it will also take MNI atlas masks and register to same template. These should all be in the same space to run estimates. 
+
+05/10/2023
+"version": "0.5.2"
+
+- ROIs have been transformed from MNI to BCP space offline to save computational power
+- Back projection from BCP to subject space will be performed for volume estimates
+- intermediary outputs are saved for debugging

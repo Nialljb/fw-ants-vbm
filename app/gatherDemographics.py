@@ -116,7 +116,7 @@ def get_demo():
                     else:
                         PatientSex = "NA"
                 
-                    print("PatientSex: ", PatientSex)
+                    # print("PatientSex: ", PatientSex)
 
                     if 'PatientBirthDate' in dicom_header.info:
                         # Get dates from dicom header
@@ -146,10 +146,10 @@ def get_demo():
                     # Make sure age is positive
                     elif age < 0:
                         age = age * -1
-                    print("age: ", age)
+                    # print("age: ", age)
         
     target_template = '12Month'
-    print("target_template: ", target_template)
+    # print("target_template: ", target_template)
 
     Template = '/flywheel/v0/app/templates/'+ target_template
     print(Template)

@@ -18,11 +18,6 @@
             "description": "Glasser, M., Coalson, T., Robinson, E. et al. A multi-modal parcellation of human cerebral cortex. Nature 536, 171\u2013178 (2016). https://doi.org/10.1038/nature18933",
             "type": "boolean"
         },
-        "Jolly": {
-            "default": false,
-            "description": "Amy E Jolly, Maria B\u0103l\u0103e\u0163, Adriana Azor, Daniel Friedland, Stefano Sandrone, Neil S N Graham, Karl Zimmerman, David J Sharp, Detecting axonal injury in individual patients after traumatic brain injury, Brain, Volume 144, Issue 1, January 2021, Pages 92\u2013113, https://doi.org/10.1093/brain/awaa372",
-            "type": "boolean"
-        },
         "ICBM81": {
             "default": false,
             "description": "Mori S, Oishi K, Jiang H, Jiang L, Li X, Akhter K, Hua K, Faria AV, Mahmood A, Woods R, Toga AW, Pike GB, Neto PR, Evans A, Zhang J, Huang H, Miller MI, van Zijl P, Mazziotta J. Stereotaxic white matter atlas based on diffusion tensor imaging in an ICBM template. Neuroimage. 2008 Apr 1;40(2):570-582. doi: 10.1016/j.neuroimage.2007.12.035. Epub 2008 Jan 3. PMID: 18255316; PMCID: PMC2478641.",
@@ -53,7 +48,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/hyperfine-vbm:0.4.9"
+            "image": "flywheel/hyperfine-vbm:0.5.2"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
@@ -93,5 +88,5 @@
     "name": "hyperfine-vbm",
     "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
     "url": "",
-    "version": "0.4.9"
+    "version": "0.5.2"
 }
