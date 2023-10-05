@@ -233,6 +233,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
+    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
 
     # --- 9: Calculate warps from MNI to BCP template ---  #
     # registration.MNI2BCP(studyBrainReference, WORK)
@@ -252,7 +253,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
         print("Sorry, Glasser 2016 atlas is not yet implemented")
     
     if ICBM81 == True:
-        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, studyBrainReference, gCorrectedGMSegmentation, WM_mask, df)
+        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation,  WM_mask, brainAffineField, brainInverseWarpField, df)
 
 
     # -----------------  Save the volumes  -----------------  #
