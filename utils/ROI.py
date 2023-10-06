@@ -1,36 +1,6 @@
 import os
 import subprocess
 
-
-# def run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign,individualMaskedBrain, wm, wm_mask, brainAffineField, brainInverseWarpField, df):
-#     print("Aligning white matter tracts to template...")
-#     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/wm/MedicolegalTracts")
-#     for region in os.listdir(atlas):
-#         f = os.path.join(atlas, region)
-#         # checking if it is a file
-#         if os.path.isfile(f):
-#             regionName = region.split(".")[0]
-#             print("ROI: ", regionName)  
-#             if regionName == "":
-#                 continue
-#             else:
-#                 # 2: Perform the warp on the individual brain image to align it to the template
-#                 print("Back projecting from BCP template to subject...")
-#                 MNI_WARP = (WORK + "/mni2bcp_1Warp.nii.gz")
-#                 MNI_AFFINE = (WORK + "/mni2bcp_0GenericAffine.mat")
-#                 ROIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
-#                 # Run registration
-#                 subprocess.run(['antsApplyTransforms -d 3 -i ' + f + ' -r ' + individualMaskedBrain + ' -t ' + MNI_WARP + ' -t ' + MNI_AFFINE + ' -n GenericLabel -o ' + ROIAligned], shell=True, check = True)
-#                 subprocess.run(["fslmaths " + ROIAligned + " -mul " + wm_mask + " " + ROIAligned], shell=True, check = True)	
-
-#                 # Calculate volume
-#                 est = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
-#                 mask_vol = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-#                 volume = int(est * mask_vol)
-#                 df[regionName] = volume
-#                 print(regionName, ":", volume, "mm3")
-#     return df
-
 def run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, wm, wm_mask, brainAffineField, brainInverseWarpField, df):
     print("Aligning white matter tracts to template...")
     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/wm/ICBM-81")
@@ -46,7 +16,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMasked
                 # 2: Perform the warp on the individual brain image to align it to the template
                 print("Back projecting ROI to subject space...")
                 try:
-                    ROIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
+                    ROIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
                     # Run registration
                     subprocess.run([antsImageAlign + " " + f + " " + ROIAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
                     subprocess.run(["fslmaths " + ROIAligned + " -mul " + wm_mask + " " + ROIAligned], shell=True, check = True)	
@@ -54,7 +24,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMasked
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol)
+                    volume = int(est * mask_vol * 3.375)
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
                 except:
@@ -76,7 +46,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualM
             else:
                 # 2: Perform the warp on the individual brain image to align it to the template
                 print("Back projecting ROI to subject space...")
-                ROIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
+                ROIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
                 try:
                     # Run registration (subcortical ROIs require thresholding)
                     subprocess.run([antsImageAlign + " " + f + " " + ROIAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
@@ -86,7 +56,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualM
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol)
+                    volume = int(est * mask_vol * 3.375)
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
                 except:
@@ -109,7 +79,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMask
                 # 2: Perform the warp on the individual brain image to align it to the template
                 print("Back projecting ROI to subject space...")
                 try:
-                    ROIAligned = (OUTPUT_DIR + "/" + regionName + "_Aligned.nii.gz")
+                    ROIAligned = (WORK + "/" + regionName + "_Aligned.nii.gz")
                     # Run registration
                     subprocess.run([antsImageAlign + " " + f + " " + ROIAligned + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
                     subprocess.run(["fslmaths " + ROIAligned + " -thr 0.7 " + ROIAligned], shell=True, capture_output = True)
@@ -118,7 +88,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMask
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol)
+                    volume = int(est * mask_vol * 3.375)
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
                 except:

@@ -94,3 +94,11 @@ Improved masks have been added for cortical and subcortical ROIs
 - ROIs have been transformed from MNI to BCP space offline to save computational power
 - Back projection from BCP to subject space will be performed for volume estimates
 - intermediary outputs are saved for debugging
+
+06/10/2023
+ "version": "0.5.4"
+
+ -  "version": "0.5.3" ran succesfully will all outpu
+ -  Have moved output masks into work dir so will not be saved out
+ -  Introduced a mean intensity output for sanity check of volume calculation
+ -  Volume calculation updated to include scaling factor of image dimensions (1.5mm^3 = 3.375)

@@ -145,9 +145,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     # --- 4: Use output from bet to mask the tissue segmentations    ---  #  
 
     print("Masking tissue segmentations...")
-    maskedWMSegmentation = (OUTPUT_DIR + "/maskedWM.nii.gz")
-    maskedGMSegmentation = (OUTPUT_DIR + "/maskedGM.nii.gz")
-    maskedCSFSegmentation = (OUTPUT_DIR + "/maskedCSF.nii.gz")
+    maskedWMSegmentation = (WORK + "/maskedWM.nii.gz")
+    maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
+    maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
 
     try:
         os.system("fslmaths " + individualWhiteSegmentation + " -mas " + studyBrainMask + " " + maskedWMSegmentation)
@@ -220,10 +220,10 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     mi_gm = float(subprocess.check_output(["fslstats " + gCorrectedGMSegmentation + " -k " + maskedGMSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
     mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
 
-    # Calculate the volumes by multiplying the mean intensity by the volume
-    wm_vol = int(seg_vol_wm * mi_wm)
-    gm_vol = int(seg_vol_gm * mi_gm)
-    csf_vol = int(seg_vol_csf * mi_csf)
+    # Calculate the volumes by multiplying the mean intensity by the volume & scaling by image dimensions (1.5mm^3)
+    wm_vol = int(seg_vol_wm * mi_wm * 3.375)
+    gm_vol = int(seg_vol_gm * mi_gm * 3.375)
+    csf_vol = int(seg_vol_csf * mi_csf * 3.375)
 
     print("WM volume: ", wm_vol)
     print("GM volume: ", gm_vol)
@@ -234,6 +234,13 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     # Creates DataFrame.  
     df = pd.DataFrame(data)
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
+
+
+    # Backup of mean intensity calculation
+    BackupData = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': mi_wm, 'gm_vol': mi_gm, 'csf_vol': mi_csf}]  
+    # Creates DataFrame.  
+    Backup_df = pd.DataFrame(BackupData)
+    Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/MI.csv')
 
     # --- 9: Calculate warps from MNI to BCP template ---  #
     # registration.MNI2BCP(studyBrainReference, WORK)
@@ -263,8 +270,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     #  tmp save ROIs to sanity check registration
     try:
-        subprocess.run(["cp " + OUTPUT_DIR + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
-        subprocess.run(["cp " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
-        subprocess.run(["cp " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
     except:
         print("Error in copying ROIs")
