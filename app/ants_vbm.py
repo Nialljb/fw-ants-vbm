@@ -251,16 +251,16 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     #     df = ROI.run_jolly(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation, WM_mask, brainAffineField, brainInverseWarpField, df)
 
     if HarvardOxford_Subcortical == True:
-        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df)
+        df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
  
     if HarvardOxford_Cortical == True:
-        df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df)
+        df = ROI.run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
 
     if Glasser == True:
         print("Sorry, Glasser 2016 atlas is not yet implemented")
     
     if ICBM81 == True:
-        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation,  WM_mask, brainAffineField, brainInverseWarpField, df)
+        df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation,  WM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
 
 
     # -----------------  Save the volumes  -----------------  #
@@ -270,7 +270,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     #  tmp save ROIs to sanity check registration
     try:
-        subprocess.run(["cp " + WORK + "/BCC.nii.gz " + OUTPUT_DIR + "/BCC.nii.gz"], shell=True, capture_output = True)	
+        subprocess.run(["cp " + WORK + "/BCC_Aligned.nii.gz " + OUTPUT_DIR + "/BCC_Aligned.nii.gz"], shell=True, capture_output = True)	
         subprocess.run(["cp " + WORK + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz " + OUTPUT_DIR + "/lh_Frontal_Orbital_Cortex_Aligned.nii.gz"], shell=True, capture_output = True)	
         subprocess.run(["cp " + WORK + "/Left_Caudate_Aligned.nii.gz " + OUTPUT_DIR + "/Left_Caudate_Aligned.nii.gz"], shell=True, capture_output = True)	
     except:
