@@ -221,9 +221,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
 
     # Calculate the volumes by multiplying the mean intensity by the volume & scaling by image dimensions (1.5mm^3)
-    wm_vol = int(seg_vol_wm * mi_wm * 3.375)
-    gm_vol = int(seg_vol_gm * mi_gm * 3.375)
-    csf_vol = int(seg_vol_csf * mi_csf * 3.375)
+    wm_vol = seg_vol_wm * mi_wm * 3.375
+    gm_vol = seg_vol_gm * mi_gm * 3.375
+    csf_vol = seg_vol_csf * mi_csf * 3.375
 
     print("WM volume: ", wm_vol)
     print("GM volume: ", gm_vol)

@@ -24,7 +24,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMasked
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol * 3.375)
+                    volume = est * mask_vol * 3.375
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
 
@@ -59,7 +59,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualM
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol * 3.375)
+                    volume = est * mask_vol * 3.375
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
 
@@ -93,7 +93,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, OUTPUT_DIR, antsImageAlign, individualMask
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = int(est * mask_vol * 3.375)
+                    volume = est * mask_vol * 3.375
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
 
