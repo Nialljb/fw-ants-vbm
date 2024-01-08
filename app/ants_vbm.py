@@ -4,6 +4,7 @@ import subprocess
 import pandas as pd  
 import utils.ROI as ROI
 import utils.registration as registration
+from utils.scaleFactor import scaleFactor
 
 # Pre-run gears:
 # 1. Isotropic reconstruction (CISO)
@@ -53,13 +54,20 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
  
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
-        if file.find("isotropicReconstruction_corrected_sbet_brain.nii.gz")>=0:       
+        if '_brain.nii.gz' in file:
             individualMaskedBrain = (INPUT_DIR + file)
-        elif file.find("isotropicReconstruction_corrected_sbet_mask.nii.gz")>=0:
+        elif '_mask.nii.gz' in file:
             initialBrainMask = (INPUT_DIR + file)
+
+        # if file.find("isotropicReconstruction_corrected_sbet_brain.nii.gz")>=0:       
+        #     individualMaskedBrain = (INPUT_DIR + file)
+        # elif file.find("isotropicReconstruction_corrected_sbet_mask.nii.gz")>=0:
+        #     initialBrainMask = (INPUT_DIR + file)
 
     print("Initial brain is: ", individualMaskedBrain)   
     print("Initial brain mask is: ", initialBrainMask)
+
+    sf = scaleFactor(individualMaskedBrain)    
 
     # set template priors
     templatePath = Path(TEMPLATE) # To rglob
@@ -221,9 +229,9 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
 
     # Calculate the volumes by multiplying the mean intensity by the volume & scaling by image dimensions (1.5mm^3)
-    wm_vol = seg_vol_wm * mi_wm * 1.5 * 1.5 * 1.5
-    gm_vol = seg_vol_gm * mi_gm * 1.5 * 1.5 * 1.5
-    csf_vol = seg_vol_csf * mi_csf * 1.5 * 1.5 * 1.5
+    wm_vol = seg_vol_wm * mi_wm * sf #1.5 * 1.5 * 1.5
+    gm_vol = seg_vol_gm * mi_gm * sf #1.5 * 1.5 * 1.5
+    csf_vol = seg_vol_csf * mi_csf * sf #1.5 * 1.5 * 1.5
 
     print("WM volume: ", wm_vol)
     print("GM volume: ", gm_vol)
@@ -248,16 +256,16 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
     # --- 10: ROI registration ---  #
 
     if HarvardOxford_Subcortical == True:
-        df, Backup_df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
+        df, Backup_df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf)
  
     if HarvardOxford_Cortical == True:
-        df, Backup_df = ROI.run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
+        df, Backup_df = ROI.run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf)
 
     if Glasser == True:
         print("Sorry, Glasser 2016 atlas is not yet implemented")
     
     if ICBM81 == True:
-        df, Backup_df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation,  WM_mask, brainAffineField, brainInverseWarpField, df, Backup_df)
+        df, Backup_df = ROI.run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedWMSegmentation,  WM_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf)
 
 
     # -----------------  Save the volumes  -----------------  #

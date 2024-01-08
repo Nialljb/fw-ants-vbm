@@ -5,12 +5,12 @@ import pandas as pd
 from datetime import datetime
 import re
 import subprocess
+import fnmatch
 
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
 
 def get_demo():
-
     # Read config.json file
     p = open('/flywheel/v0/config.json')
     config = json.loads(p.read())
@@ -34,6 +34,14 @@ def get_demo():
     print("session label: ", session.label)
     session_label = session.label
     subject_label = session.subject.label
+
+    # --- fast vs slow --- #
+
+    for file in os.listdir('/flywheel/v0/input/input/'):
+        if fnmatch.fnmatch(file, '*_fast_*'):
+            acq = 'fast'
+        else:
+            acq = 'slow'
 
     #  -----------------  Get the hd-bet output  -----------------  #
 
@@ -60,16 +68,27 @@ def get_demo():
             status = matches[0].job.get('state')
             # print(status)
             
-            for file in matches[0].files:                
-                if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
-                    brain_mask = file
-                    print("Found ", file.name)
+            for file in matches[0].files:  
+                if acq == 'fast':              
+                    if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
+                        brain_mask = file
+                        print("Found ", file.name)
 
-                    download_dir = ('/flywheel/v0/input/input/')
-                    if not os.path.exists(download_dir):
-                        os.mkdir(download_dir)
-                    download_path = download_dir + '/' + file.name
-                    file.download(download_path)
+                        download_dir = ('/flywheel/v0/input/input/')
+                        if not os.path.exists(download_dir):
+                            os.mkdir(download_dir)
+                        download_path = download_dir + '/' + file.name
+                        file.download(download_path)
+                else:
+                    if 'isotropicReconstruction_corrected_sbet_mask.nii.gz' in file.name:
+                        brain_mask = file
+                        print("Found ", file.name)
+
+                        download_dir = ('/flywheel/v0/input/input/')
+                        if not os.path.exists(download_dir):
+                            os.mkdir(download_dir)
+                        download_path = download_dir + '/' + file.name
+                        file.download(download_path)
 
         # If there are more than one matches (due to reruns), take the most recent run.
         # This behavior may be modified to whatever suits your needs
@@ -84,16 +103,27 @@ def get_demo():
             status = last_run_analysis.job.get('state')
 
             for file in last_run_analysis.files:
-                # print(file)                
-                if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
-                    brain_mask = file
-                    print("Found ", file.name)
 
-                    download_dir = ('/flywheel/v0/input/input/')
-                    if not os.path.exists(download_dir):
-                        os.mkdir(download_dir)
-                    download_path = download_dir + '/' + file.name
-                    file.download(download_path)
+                if acq == 'fast':
+                    if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
+                        brain_mask = file
+                        print("Found ", file.name)
+
+                        download_dir = ('/flywheel/v0/input/input/')
+                        if not os.path.exists(download_dir):
+                            os.mkdir(download_dir)
+                        download_path = download_dir + '/' + file.name
+                        file.download(download_path)
+                else:
+                    if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
+                        brain_mask = file
+                        print("Found ", file.name)
+
+                        download_dir = ('/flywheel/v0/input/input/')
+                        if not os.path.exists(download_dir):
+                            os.mkdir(download_dir)
+                        download_path = download_dir + '/' + file.name
+                        file.download(download_path)
 
     # -------------------  Get the subject age & matching template  -------------------  #
 

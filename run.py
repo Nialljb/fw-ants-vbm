@@ -19,11 +19,11 @@ subprocess.run(["echo $FSLOUTPUTTYPE"],
 
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""
-    print("pulling metadata...")
-    subject_label, session_label, target_template, age, patientSex = get_demo()
-
     print("parsing config...")    
     input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81 = parse_config(context)
+
+    print("pulling metadata...")
+    subject_label, session_label, target_template, age, patientSex = get_demo()
 
     print("running volume estimation...")
     e_code = vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81)

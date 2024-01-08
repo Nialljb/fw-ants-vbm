@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, wm_mask, brainAffineField, brainInverseWarpField, df, Backup_df):
+def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, wm_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf):
     print("Aligning white matter tracts to template...")
     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/wm/ICBM-81")
     for region in os.listdir(atlas):
@@ -24,7 +24,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, w
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + wm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = est * mask_vol * 1.5 * 1.5 * 1.5
+                    volume = est * mask_vol * sf #1.5 * 1.5 * 1.5
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
 
@@ -34,7 +34,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, w
                     print("Error with ROI: ", regionName)
     return df, Backup_df
 
-def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainInverseWarpField, df, Backup_df):
+def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf):
     print("Aligning grey matter subcortical ROIs to template...")
     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/gm/subcortical")
 
@@ -59,7 +59,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, 
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = est * mask_vol * 1.5 * 1.5 * 1.5
+                    volume = est * mask_vol * sf #1.5 * 1.5 * 1.5
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
 
@@ -69,7 +69,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, 
     return df, Backup_df
 
 
-def run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainInverseWarpField, df, Backup_df):
+def run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf):
     print("Aligning grey matter cortical ROIs to subject...")
     atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/gm/cortical")
     for region in os.listdir(atlas):
@@ -93,7 +93,7 @@ def run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm,
                     # Calculate volume
                     est = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
                     mask_vol = float(subprocess.check_output(["fslstats " + gm + " -k " + ROIAligned + " -V | awk '{print $1}' "], shell=True).decode("utf-8"))
-                    volume = est * mask_vol * 1.5 * 1.5 * 1.5
+                    volume = est * mask_vol * sf #1.5 * 1.5 * 1.5
                     df[regionName] = volume
                     print(regionName, ":", volume, "mm3")
                     Backup_df[regionName] = est
