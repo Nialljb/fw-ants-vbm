@@ -15,10 +15,11 @@ def scaleFactor(input):
     """
     n1_img = nib.load(input)
     pixdim = (n1_img.header['pixdim'])
-    scaleFactor = pixdim[0] * pixdim[1] * pixdim[2]
+
+    print("pixdim is: ", pixdim)
+    scaleFactor = pixdim[1] * pixdim[2] * pixdim[3]
+    # 0 index may be wrong
 
     print("scaleFactor is: ", scaleFactor)
     print("1.5mm^3 is: ", 1.5*1.5*1.5)
     return scaleFactor
-
-

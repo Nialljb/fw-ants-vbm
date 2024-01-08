@@ -23,10 +23,10 @@ def main(context: GearToolkitContext) -> None:
     input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81 = parse_config(context)
 
     print("pulling metadata...")
-    subject_label, session_label, target_template, age, patientSex = get_demo()
+    subject_label, session_label, target_template, age, patientSex, speed = get_demo()
 
     print("running volume estimation...")
-    e_code = vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81)
+    e_code = vbm(subject_label, session_label, target_template, age, patientSex, input, speed, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81)
     sys.exit(e_code)
 
 # Only execute if file is run as main, not when imported by another module

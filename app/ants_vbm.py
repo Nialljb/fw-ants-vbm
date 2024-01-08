@@ -28,9 +28,10 @@ from utils.scaleFactor import scaleFactor
 
 #  -------------------  The main event -------------------  #
 
-def vbm(subject_label, session_label, target_template, age, patientSex, input, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
+def vbm(subject_label, session_label, target_template, age, patientSex, input, speed, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
     
     print("Input: ", input)
+    print("Speed: ", speed)
     print("subject_label: ", subject_label)
     print("session_label: ", session_label)
     print("target_template: ", target_template)
@@ -270,8 +271,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, H
 
     # -----------------  Save the volumes  -----------------  #
 
-    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
-    print("Volumes saved to: ", OUTPUT_DIR + '/volumes.csv')
+    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-volumes.csv')
+    print("Volumes saved to: ", OUTPUT_DIR + '/' + speed + '-volumes.csv')
 
     Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/MI.csv')
 

@@ -39,9 +39,9 @@ def get_demo():
 
     for file in os.listdir('/flywheel/v0/input/input/'):
         if fnmatch.fnmatch(file, '*_fast_*'):
-            acq = 'fast'
+            speed = 'fast'
         else:
-            acq = 'slow'
+            speed = 'slow'
 
     #  -----------------  Get the hd-bet output  -----------------  #
 
@@ -69,7 +69,7 @@ def get_demo():
             # print(status)
             
             for file in matches[0].files:  
-                if acq == 'fast':              
+                if speed == 'fast':              
                     if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
@@ -104,7 +104,7 @@ def get_demo():
 
             for file in last_run_analysis.files:
 
-                if acq == 'fast':
+                if speed == 'fast':
                     if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
@@ -186,4 +186,4 @@ def get_demo():
     # os.system('cp -r '+Template+' /flywheel/v0/work/')
     subprocess.run(['cp -r '+Template+' /flywheel/v0/work/'], shell=True, check=True)
     print("Demographics: ", subject_label, session_label, target_template, age, PatientSex)
-    return subject_label, session_label, target_template, age, PatientSex
+    return subject_label, session_label, target_template, age, PatientSex, speed

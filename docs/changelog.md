@@ -102,3 +102,9 @@ Improved masks have been added for cortical and subcortical ROIs
  -  Have moved output masks into work dir so will not be saved out
  -  Introduced a mean intensity output for sanity check of volume calculation
  -  Volume calculation updated to include scaling factor of image dimensions (1.5mm^3 = 3.375)
+
+08/01/2024
+ "version": "0.5.9"
+- scaling was reverted to hardcoding, this has been updated. The 0 index in nifti header was incorrect and dimemsions start from 1
+- NOTE TO SELF: Test and merge with dev with main branch if ok
+
