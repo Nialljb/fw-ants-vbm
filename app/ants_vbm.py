@@ -242,14 +242,14 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
-    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/volumes.csv')
+    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-volumes.csv')
 
 
     # Backup of mean intensity calculation
     BackupData = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': mi_wm, 'gm_vol': mi_gm, 'csf_vol': mi_csf}]  
     # Creates DataFrame.  
     Backup_df = pd.DataFrame(BackupData)
-    Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/MI.csv')
+    Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-MI.csv')
 
     # --- 9: Calculate warps from MNI to BCP template ---  #
     # registration.MNI2BCP(studyBrainReference, WORK)
@@ -274,7 +274,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-volumes.csv')
     print("Volumes saved to: ", OUTPUT_DIR + '/' + speed + '-volumes.csv')
 
-    Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/MI.csv')
+    Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-MI.csv')
 
     #  tmp save ROIs to sanity check registration
     try:

@@ -108,3 +108,6 @@ Improved masks have been added for cortical and subcortical ROIs
 - scaling was reverted to hardcoding, this has been updated. The 0 index in nifti header was incorrect and dimemsions start from 1
 - NOTE TO SELF: Test and merge with dev with main branch if ok
 
+09/01/2024
+ "version": "0.6.1"
+ - minor update to output names
