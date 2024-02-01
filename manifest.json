@@ -48,14 +48,14 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/hyperfine-vbm:0.6.1"
+            "image": "flywheel/hyperfine-vbm:0.6.2"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
             "anat"
         ]
     },
-    "description": "This gear takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants. ROI outputs can be selected from a number of atlases in the configuration.",
+    "description": "This gear takes the isotropic hyperfine reconstructions that have been brain extracted (SBET) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants. ROI outputs can be selected from a number of atlases in the configuration.",
     "environment": {
         "CONDA_DIR": "/opt/conda",
         "FLYWHEEL": "/flywheel/v0",
@@ -78,7 +78,7 @@
         },
         "input": {
             "base": "file",
-            "description": "input file (usually bias corrected isotropic reconstruction)",
+            "description": "input file (brain extracted isotropic reconstruction)",
             "optional": false
         }
     },
@@ -88,5 +88,5 @@
     "name": "hyperfine-vbm",
     "source": "https://www.sciencedirect.com/science/article/pii/S1053811921005498",
     "url": "",
-    "version": "0.6.1"
+    "version": "0.6.2"
 }

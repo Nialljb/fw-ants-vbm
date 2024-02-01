@@ -111,3 +111,9 @@ Improved masks have been added for cortical and subcortical ROIs
 09/01/2024
  "version": "0.6.1"
  - minor update to output names
+
+01/02/2024
+    "version": "0.6.2"
+    - generalise demographic extraction. Set defaults if no dicom header
+    - generalise brain and mask extraction. Still assumes sbet has been run
+    - **NOTE** 12M template is hardcoded 

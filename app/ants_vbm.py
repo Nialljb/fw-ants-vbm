@@ -29,6 +29,7 @@ from utils.scaleFactor import scaleFactor
 #  -------------------  The main event -------------------  #
 
 def vbm(subject_label, session_label, target_template, age, patientSex, input, speed, HarvardOxford_Cortical, HarvardOxford_Subcortical, Glasser, Jolly, ICBM81):
+    # could be input as a class structure to simplify function call
     
     print("Input: ", input)
     print("Speed: ", speed)
@@ -255,7 +256,7 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     # registration.MNI2BCP(studyBrainReference, WORK)
  
     # --- 10: ROI registration ---  #
-
+    # consider generating class structure for arguments to simplify function calls
     if HarvardOxford_Subcortical == True:
         df, Backup_df = ROI.run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gCorrectedGMSegmentation, GM_mask, brainAffineField, brainInverseWarpField, df, Backup_df, sf)
  
@@ -271,8 +272,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
 
     # -----------------  Save the volumes  -----------------  #
 
-    df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-volumes.csv')
-    print("Volumes saved to: ", OUTPUT_DIR + '/' + speed + '-volumes.csv')
+    df.to_csv(index=False, path_or_buf=f"{OUTPUT_DIR}/{speed}-volumes.csv") # Trying f-string formatting for better readability
+    print("Volumes saved to: ", f"{OUTPUT_DIR}/{speed}-volumes.csv")
 
     Backup_df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-MI.csv')
 

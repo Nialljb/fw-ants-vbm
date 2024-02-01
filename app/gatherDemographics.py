@@ -11,6 +11,8 @@ import fnmatch
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
 
 def get_demo():
+    PatientSex = "NA"
+    age = 0
     # Read config.json file
     p = open('/flywheel/v0/config.json')
     config = json.loads(p.read())
@@ -70,7 +72,7 @@ def get_demo():
             
             for file in matches[0].files:  
                 if speed == 'fast':              
-                    if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
+                    if 'fast' and 'sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
 
@@ -80,7 +82,7 @@ def get_demo():
                         download_path = download_dir + '/' + file.name
                         file.download(download_path)
                 else:
-                    if 'isotropicReconstruction_corrected_sbet_mask.nii.gz' in file.name:
+                    if 'sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
 
@@ -105,7 +107,7 @@ def get_demo():
             for file in last_run_analysis.files:
 
                 if speed == 'fast':
-                    if 'isotropicReconstruction_fast_corrected_sbet_mask.nii.gz' in file.name:
+                    if 'fast' and 'sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
 
@@ -115,7 +117,7 @@ def get_demo():
                         download_path = download_dir + '/' + file.name
                         file.download(download_path)
                 else:
-                    if file.name == 'isotropicReconstruction_corrected_sbet_mask.nii.gz':
+                    if 'sbet_mask.nii.gz' in file.name:
                         brain_mask = file
                         print("Found ", file.name)
 
@@ -168,8 +170,7 @@ def get_demo():
                         age = int(age)
                     else:
                         print("No age at scan in session info label! Ask PI...")
-                        age = 0
-
+                        
                     if age == 0:
                         print("No age at scan - skipping")
                         exit(1)
@@ -179,6 +180,9 @@ def get_demo():
                     # print("age: ", age)
         
     target_template = '12Month'
+    # if age == 0:
+    #     target_template = 'MNI152_T1_1mm_brain.nii.gz'
+        
     # print("target_template: ", target_template)
 
     Template = '/flywheel/v0/app/templates/'+ target_template

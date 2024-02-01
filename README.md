@@ -1,16 +1,19 @@
 # ANTs VBM
 This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs on infants between 0-2 years old with isotropic reconstructed Hyperfine scans.
 
+**Note:** 
+Hardcoded to use BCP template for now. Need to extract tissue priors from adult template to include as an alternative.
+
 ## Overview
 
 [Usage](#usage)
-Should be automated if setup correctly. Requires age to select appropriate template for registration. The configuration allows a selection of atlases to choose from. ROI volume estimation will be performed on these.
+Should be automated if setup correctly. The configuration allows a selection of atlases to choose from. ROI volume estimation will be performed on these.
 [FAQ](#faq)
 
 ### Summary
-Takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and calculates volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants. 
+Takes the isotropic hyperfine reconstructions that have been bias corrected (N4) and brain extracted to calculate volume estimates for white matter, grey matter & CSF by calculating Jacobian determinants. 
 - Requires matching to template used in recon
-- Required brain mask from HD-BET (Could include conditional to run HD-BET if files not found)
+- Required brain mask from SBET (Could include conditional to run HD-BET if files not found)
 
 ### Cite
 
@@ -94,7 +97,7 @@ it does, but HOW it works in flywheel
 
 ### Description
 
-This gear is run at either the `Subject` or the `Session` level. It downloads the data from the output of a previously run `HD-BET` analysis for that subject/session into the `/flwyhweel/v0/work/` folder and then runs the
+This gear is run at either the `Subject` or the `Session` level. It downloads the data from the output of a previously run `HD-BET` analysis for that subject/session into the `/flywheel/v0/work/` folder and then runs the
 `hyperfine-vbm` pipeline on it.
 
 After the pipeline is run, the output folder is zipped and saved into the analysis
