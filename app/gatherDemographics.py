@@ -133,6 +133,7 @@ def get_demo():
     # Should contain the DOB in the dicom header
     # Some projects may have DOB removed, but may have age at scan in the subject container
 
+    age = 0
     for acq in session_container.acquisitions.iter():
         # print(acq.label)
         acq = acq.reload()
@@ -171,19 +172,19 @@ def get_demo():
                     else:
                         print("No age at scan in session info label! Ask PI...")
                         
-                    if age == 0:
-                        print("No age at scan - skipping")
-                        exit(1)
+                    # if age == 0:
+                    #     print("No age at scan - skipping")
+                    #     exit(1)
                     # Make sure age is positive
-                    elif age < 0:
+                    if age < 0:
                         age = age * -1
                     # print("age: ", age)
         
     target_template = '12Month'
     # if age == 0:
-    #     target_template = 'MNI152_T1_1mm_brain.nii.gz'
+    #     target_template = 'MNI'
         
-    # print("target_template: ", target_template)
+    print("target_template: ", target_template)
 
     Template = '/flywheel/v0/app/templates/'+ target_template
     print(Template)

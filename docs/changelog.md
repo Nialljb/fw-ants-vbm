@@ -117,3 +117,29 @@ Improved masks have been added for cortical and subcortical ROIs
     - generalise demographic extraction. Set defaults if no dicom header
     - generalise brain and mask extraction. Still assumes sbet has been run
     - **NOTE** 12M template is hardcoded 
+
+06/02/2024
+"version": "0.6.3"
+*Major changes to workflow*
+- All input is registered to template space
+- All masks are already in template space so not registered
+- Should take images reconstructed with BCP or MNI space
+- **NOTE** Need to sanity check the output of the registration to ensure it is working as expected
+
+
+13/02/2024
+"version": "0.6.4"
+
+- **NOTE** 0.6.3 was not working as expected.
+Simplified workflow:
+All 12M BCP priors, ICBM-81, and Harvard-Oxford atlases are resampled to 1.5mm
+Input images are registered to 12M BCP template 1.5mm
+- scaled volume removed as this should be resolved by mask resampling
+
+TO DO:
+- Check if adult template is needed or refactored to take any template
+- Is an initial native space segmentation needed?
+
+14/02/2024
+"version": "0.6.5"
+- BCP 12M template is hardcoded

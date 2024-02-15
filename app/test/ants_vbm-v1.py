@@ -14,6 +14,26 @@ from utils.scaleFactor import scaleFactor
 # Required inputs:
 # Age matched templates should be pulled from the template directory (previous module)
 # Brain mask should be pulled from the previous module
+
+#  Steps:
+# 1. import the necessary packages
+# 2. Calculate the warp from individual to template
+# 4. Brain mask bias corrected images
+# 5. Apply the warp to the ROIs & tissue segmentations
+# 6. Calculate the jacobian matrices
+# 7. Multiply the aligned images by the jacobian matrix to correct for the effect of the warp
+# 8. Calculate the volumes of the tissue segmentations
+# 9. Calculate the volumes of the ROIs
+# 10. Save the volumes
+
+
+# ** NOTE:
+# input image aligned to template, the ROIs are already in template space so no need to warp them as this may introduce errors
+# If back projecting need to to think about the jacbian space as this will be template space and not individual space
+# 
+# With Hyperfine reconstruction, images are aligned to "A" template space. The focus has been on kids so BCP but in theory could be any template space (e.g. MNI).
+# As these have been aligned with BCP, assumptions of script were as such. But with highfield data in MNI this is violated.
+
  
 #  -------------------  The main event -------------------  #
 
@@ -42,14 +62,18 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
     TEMPLATE = ('/flywheel/v0/app/templates/' + target_template + "/")
-    # TEMPLATE = ('/flywheel/v0/app/templates/atlas/unity/priors' )
-
+ 
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
         if '_brain.nii.gz' in file:
             individualMaskedBrain = (INPUT_DIR + file)
         elif '_mask.nii.gz' in file:
             initialBrainMask = (INPUT_DIR + file)
+
+        # if file.find("isotropicReconstruction_corrected_sbet_brain.nii.gz")>=0:       
+        #     individualMaskedBrain = (INPUT_DIR + file)
+        # elif file.find("isotropicReconstruction_corrected_sbet_mask.nii.gz")>=0:
+        #     initialBrainMask = (INPUT_DIR + file)
 
     print("Initial brain is: ", individualMaskedBrain)   
     print("Initial brain mask is: ", initialBrainMask)
@@ -91,12 +115,12 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     # save output as studyBrainReferenceAligned
     print("Calculating warp from individual to template brain...")
     studyAlignedBrainImage = (WORK + "/initialBrainMaskedImage_aligned.nii.gz")
-    try:
-        result = subprocess.run([antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000"], shell=True, check=True) # , text=True , capture_output=True
-    except:
-        print("*Error in calculating warp*")
-        print(result.stderr)
-        sys.exit(1)
+    # try:
+    #     result = subprocess.run([antsWarp + studyBrainReference + ", " + individualMaskedBrain + ", 1, 6] -o " + studyAlignedBrainImage + " -i 60x90x45 -r Gauss[3,1] -t SyN[0.25] --use-Histogram-Matching --MI-option 32x16000 --number-of-affine-iterations 10000x10000x10000x10000x10000"], shell=True, check=True) # , text=True , capture_output=True
+    # except:
+    #     print("*Error in calculating warp*")
+    #     print(result.stderr)
+    #     sys.exit(1)
 
     # Define variables from warp calculation in step 1
     brainWarpField = (WORK + "/initialBrainMaskedImage_alignedWarp.nii.gz")
@@ -113,11 +137,34 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
         print("Error in aligning individual brain to template")
         sys.exit(1)
 
-    print("Aligning brain mask to template...")
+    # --- 3: now align the individual white matter, gray matter, and csf priors to the individual brain using reverse warp ---  #
+
+    #  Take the template priors and align them to the individual space
+    # Output variables
+    print("Aligning tissue segmentations to template...")
+    individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
+    individualGraySegmentation = (WORK + "/initialGM.nii.gz")
+    individualCSFSegmentation = (WORK + "/initialCSF.nii.gz")
     studyBrainMask = (WORK + "/alignedBrainMask.nii.gz")
 
+    # try:
+    #     # Inverse warp goes from BCP (Template) to individual
+    #     # os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+    #     # os.system(antsImageAlign + " " + grayPrior + " " + individualGraySegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+    #     # os.system(antsImageAlign + " " + csfPrior + " " + individualCSFSegmentation + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline")
+        
+    #     os.system(antsImageAlign + " " + whitePrior + " " + individualWhiteSegmentation + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline")
+    #     os.system(antsImageAlign + " " + grayPrior + " " + individualGraySegmentation + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline")
+    #     os.system(antsImageAlign + " " + csfPrior + " " + individualCSFSegmentation + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline")
+    
+    # except:
+    #     print("Error in aligning tissue segmentations to template")
+    #     sys.exit(1)
+
     try:
+        # subprocess.run([antsImageAlign + " " + initialBrainMask + " " + studyBrainMask + " -R " + individualMaskedBrain + " -i " + brainAffineField + " " + brainInverseWarpField + " --use-BSpline"], shell=True, capture_output = True)
         subprocess.run([antsImageAlign + " " + initialBrainMask + " " + studyBrainMask + " -R " + studyBrainReference + " " + brainWarpField + " " + brainAffineField + " --use-BSpline"], shell=True, capture_output = True)
+
     except:
         print("Error in aligning original brain mask to template")
         sys.exit(1) # exit if error
@@ -125,10 +172,6 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     # --- 4: Use output from bet to mask the tissue segmentations    ---  #  
 
     print("Masking tissue segmentations...")
-    # segmentations already in template space so copy them over
-    individualWhiteSegmentation = (WORK + "/initialWM.nii.gz")
-    individualGraySegmentation = (WORK + "/initialGM.nii.gz")
-    individualCSFSegmentation = (WORK + "/initialCSF.nii.gz")
     maskedWMSegmentation = (WORK + "/maskedWM.nii.gz")
     maskedGMSegmentation = (WORK + "/maskedGM.nii.gz")
     maskedCSFSegmentation = (WORK + "/maskedCSF.nii.gz")
@@ -209,17 +252,16 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     mi_csf = float(subprocess.check_output(["fslstats " + gCorrectedCSFSegmentation + " -k " + maskedCSFSegmentation + " -M | awk '{print $1}' "], shell=True).decode("utf-8"))
 
     # Calculate the volumes by multiplying the mean intensity by the volume & scaling by image dimensions (1.5mm^3)
-    wm_vol = seg_vol_wm * mi_wm # * sf #1.5 * 1.5 * 1.5
-    gm_vol = seg_vol_gm * mi_gm # * sf #1.5 * 1.5 * 1.5
-    csf_vol = seg_vol_csf * mi_csf # * sf #1.5 * 1.5 * 1.5
-    icv_vol = wm_vol + gm_vol + csf_vol
+    wm_vol = seg_vol_wm * mi_wm * sf #1.5 * 1.5 * 1.5
+    gm_vol = seg_vol_gm * mi_gm * sf #1.5 * 1.5 * 1.5
+    csf_vol = seg_vol_csf * mi_csf * sf #1.5 * 1.5 * 1.5
 
     print("WM volume: ", wm_vol)
     print("GM volume: ", gm_vol)
     print("CSF volume: ", csf_vol)
 
     # assign values to lists. 
-    data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol, 'icv_vol': icv_vol}]  
+    data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': patientSex, 'wm_vol': wm_vol, 'gm_vol': gm_vol, 'csf_vol': csf_vol}]  
     # Creates DataFrame.  
     df = pd.DataFrame(data)
     df.to_csv(index=False, path_or_buf=OUTPUT_DIR + '/' + speed + '-volumes.csv')

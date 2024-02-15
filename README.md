@@ -1,8 +1,8 @@
 # ANTs VBM
-This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs on infants between 0-2 years old with isotropic reconstructed Hyperfine scans.
+This gear performs Voxel Based Morophometry using Jacobian determinants with ANTs on infants between 0-2 years old with isotropic reconstructed Hyperfine scans. 
 
 **Note:** 
-Hardcoded to use BCP template for now. Need to extract tissue priors from adult template to include as an alternative.
+Hardcoded to use BCP 12M template for now. Ammended so can run with any input but need to sanity check adult output.
 
 ## Overview
 
