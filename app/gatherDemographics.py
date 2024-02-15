@@ -43,7 +43,7 @@ def get_demo():
         if fnmatch.fnmatch(file, '*_fast_*'):
             speed = 'fast'
         else:
-            speed = 'slow'
+            speed = 'standard'
 
     #  -----------------  Get the hd-bet output  -----------------  #
 

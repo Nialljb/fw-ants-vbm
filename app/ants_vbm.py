@@ -41,8 +41,8 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     INPUT_DIR = (FLYWHEEL_BASE + "/input/input/")
     OUTPUT_DIR = (FLYWHEEL_BASE + "/output")
     WORK = (FLYWHEEL_BASE + "/work")
-    TEMPLATE = ('/flywheel/v0/app/templates/' + target_template + "/")
-    # TEMPLATE = ('/flywheel/v0/app/templates/atlas/unity/priors' )
+    # TEMPLATE = ('/flywheel/v0/app/templates/' + target_template + "/")
+    TEMPLATE = ('/flywheel/v0/app/templates/MNI/' )
 
     # Individual input variables
     for file in os.listdir(INPUT_DIR):
@@ -59,19 +59,19 @@ def vbm(subject_label, session_label, target_template, age, patientSex, input, s
     # set template priors
     templatePath = Path(TEMPLATE) # To rglob
     print("templatePath is: ", templatePath)
-    for filepath in templatePath.rglob('BCP-??M-T2.nii.gz'):
+    for filepath in templatePath.rglob('MNI152_T1_1mm_brain.nii.gz'):
         studyBrainReference = str(filepath)
         print("studyBrainReference is: ", studyBrainReference)
         break
-    for filepath in templatePath.rglob('BCP-??M-GM.nii.gz'):
+    for filepath in templatePath.rglob('MNI-GM.nii.gz'):
         grayPrior = str(filepath)
         print("grayPrior is: ", grayPrior)
         break
-    for filepath in templatePath.rglob('BCP-??M-WM.nii.gz'):
+    for filepath in templatePath.rglob('MNI-WM.nii.gz'):
         whitePrior = str(filepath)
         print("whitePrior is: ", whitePrior)
         break
-    for filepath in templatePath.rglob('BCP-??M-CSF.nii.gz'):
+    for filepath in templatePath.rglob('MNI-CSF.nii.gz'):
         csfPrior = str(filepath)
         print("csfPrior is: ", csfPrior)
         break

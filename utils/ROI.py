@@ -3,7 +3,7 @@ import subprocess
 
 def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, wm_mask, brainAffineField, brainWarpField, brainInverseWarpField, df, Backup_df, sf):
     print("Aligning white matter tracts to template...")
-    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/wm/ICBM-81")
+    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/MNI/wm/ICBM-81")
     # atlas = (FLYWHEEL_BASE + "/app/templates/atlas/unity/wm/ICBM-81")
 
     for region in os.listdir(atlas):
@@ -40,7 +40,7 @@ def run_ICBM81(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, wm, w
 
 def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainWarpField, brainInverseWarpField, df, Backup_df, sf):
     print("Aligning grey matter subcortical ROIs to template...")
-    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/gm/subcortical")
+    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/MNI/gm/subcortical")
     # atlas = (FLYWHEEL_BASE + "/app/templates/atlas/unity/gm/subcortical")
 
     for region in os.listdir(atlas):
@@ -78,7 +78,7 @@ def run_subcortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, 
 
 def run_cortical(FLYWHEEL_BASE, WORK, antsImageAlign, individualMaskedBrain, gm, gm_mask, brainAffineField, brainWarpField,brainInverseWarpField, df, Backup_df, sf):
     print("Aligning grey matter cortical ROIs to subject...")
-    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/BCP/gm/cortical")
+    atlas = (FLYWHEEL_BASE + "/app/templates/atlas/MNI/gm/cortical")
     # atlas = (FLYWHEEL_BASE + "/app/templates/atlas/unity/gm/cortical")
 
     for region in os.listdir(atlas):
